@@ -36,6 +36,12 @@ service cloud.firestore {
       }
     }
 
+    // collectionGroup('inviteCodes') 쿼리(부모가 코드로 학생을 찾는 로직)는 위의
+    // 중첩 match만으로는 list 권한이 적용되지 않아, 와일드카드 경로로 별도 허용해야 함
+    match /{path=**}/inviteCodes/{code} {
+      allow list: if isSignedIn();
+    }
+
     match /links/{linkId} {
       allow read: if isSignedIn() &&
         (resource.data.studentUid == request.auth.uid || resource.data.parentUid == request.auth.uid);

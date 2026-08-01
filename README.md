@@ -22,10 +22,28 @@ npm run dev
 
 ## 스크립트
 
-- `npm run dev` — 개발 서버 실행
+- `npm run dev` — 개발 서버 실행 (기본적으로 Firebase 에뮬레이터에 연결)
+- `npm run emulators` — Firebase Local Emulator Suite 실행 (Auth: 9099, Firestore: 8080, UI: 4000)
 - `npm run build` — 타입 체크 후 프로덕션 빌드
 - `npm run lint` — oxlint 실행
 - `npm run preview` — 빌드 결과 미리보기
+
+## 로컬 개발 (Firebase 에뮬레이터)
+
+`npm run dev`는 **기본적으로 로컬 Firebase 에뮬레이터**(Auth + Firestore)에 연결되어, 로컬 개발 중 실제 프로덕션 데이터베이스를 건드리지 않습니다. 두 개의 터미널에서 실행하세요.
+
+```bash
+# 터미널 1
+npm run emulators
+
+# 터미널 2
+npm run dev
+```
+
+- 에뮬레이터 UI: http://127.0.0.1:4000
+- 에뮬레이터는 재시작 시 데이터가 초기화됩니다.
+- 실제 프로덕션 Firebase 백엔드로 개발 서버를 띄우려면 `.env`에 `VITE_USE_FIREBASE_EMULATOR=false`를 설정하세요.
+- 프로덕션 빌드(`npm run build` / `npm run preview`)는 항상 실제 Firebase 백엔드를 사용합니다.
 
 ## 프로젝트 구조
 

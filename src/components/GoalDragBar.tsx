@@ -1,48 +1,38 @@
 import { useDragFillValue } from '../hooks/useDragFillValue'
 
-interface GoalMeterBoxProps {
+interface GoalDragBarProps {
   label: string
   minutes: number
-  goalMinutes: number
-  widthPercent: number
+  cap: number
   onCommit: (minutes: number) => void
 }
 
-export function GoalMeterBox({ label, minutes, goalMinutes, widthPercent, onCommit }: GoalMeterBoxProps) {
-  const { trackRef, display, fillRatio, adjust, handlers } = useDragFillValue({
+export function GoalDragBar({ label, minutes, cap, onCommit }: GoalDragBarProps) {
+  const { trackRef, display, fillRatio, adjust, commit, handlers } = useDragFillValue({
     value: minutes,
-    max: goalMinutes,
+    max: cap,
     onCommit,
   })
-  const achieved = display >= goalMinutes
 
   return (
     <div className="meter-content">
       <div className="meter-row-head">
         <span className="meter-row-label">{label}</span>
-        <span className="muted meter-row-value">
-          {display} / {goalMinutes}분
-        </span>
+        <span className="muted meter-row-value">{display}분</span>
       </div>
       <div
         ref={trackRef}
-        className={`meter-track${achieved ? ' meter-track--achieved' : ''}`}
-        style={{ width: `${widthPercent}%` }}
+        className="meter-track"
         role="slider"
         tabIndex={0}
         aria-label={label}
         aria-valuemin={0}
-        aria-valuemax={goalMinutes}
+        aria-valuemax={cap}
         aria-valuenow={display}
-        aria-valuetext={`${display}분 / 목표 ${goalMinutes}분`}
+        aria-valuetext={`목표 ${display}분`}
         {...handlers}
       >
         <div className="meter-fill-h" style={{ width: `${fillRatio * 100}%` }} />
-        {achieved && (
-          <span className="meter-badge" aria-hidden="true">
-            ✓
-          </span>
-        )}
       </div>
       <div className="chip-row">
         <button type="button" className="chip" onClick={() => adjust(-15)}>
@@ -50,6 +40,9 @@ export function GoalMeterBox({ label, minutes, goalMinutes, widthPercent, onComm
         </button>
         <button type="button" className="chip" onClick={() => adjust(15)}>
           +15분
+        </button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => commit(0)}>
+          초기화
         </button>
       </div>
     </div>

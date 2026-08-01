@@ -10,8 +10,8 @@ import { SubjectCard } from '../components/SubjectCard'
 import { GoalMeterBox } from '../components/GoalMeterBox'
 import type { StudentParentLink, StudyRecord } from '../types'
 
-const MAX_BOX_HEIGHT = 160
-const MIN_BOX_HEIGHT = 56
+const MIN_WIDTH_PERCENT = 25
+const MAX_WIDTH_PERCENT = 100
 
 function useTodayRecords(studentUid: string | null) {
   const [records, setRecords] = useState<StudyRecord[]>([])
@@ -58,18 +58,19 @@ function StudentHome({ studentUid, selectedSubjects, goals }: {
   return (
     <>
       {goaled.length > 0 && (
-        <div className="meter-row">
+        <ul className="card-list">
           {goaled.map(({ item, goalMinutes }) => (
-            <GoalMeterBox
-              key={item.subject}
-              label={item.label}
-              minutes={minutesBySubject.get(item.subject) ?? 0}
-              goalMinutes={goalMinutes}
-              heightPx={MIN_BOX_HEIGHT + (goalMinutes / maxGoalMinutes) * (MAX_BOX_HEIGHT - MIN_BOX_HEIGHT)}
-              onCommit={(minutes) => setStudyMinutes(studentUid, todayString(), item.subject, item.parentSubject, minutes)}
-            />
+            <li key={item.subject} className="card">
+              <GoalMeterBox
+                label={item.label}
+                minutes={minutesBySubject.get(item.subject) ?? 0}
+                goalMinutes={goalMinutes}
+                widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
+                onCommit={(minutes) => setStudyMinutes(studentUid, todayString(), item.subject, item.parentSubject, minutes)}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
       {ungoaled.length > 0 && (
         <ul className="card">

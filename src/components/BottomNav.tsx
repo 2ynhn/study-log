@@ -5,13 +5,13 @@ const STUDENT_ITEMS = [
   { to: '/home', icon: '🏠', label: '홈' },
   { to: '/stats', icon: '📊', label: '통계' },
   { to: '/goals', icon: '🎯', label: '목표' },
-  { to: '/settings/parents', icon: '👪', label: '학부모' },
+  { to: '/settings', icon: '⚙️', label: '설정' },
 ]
 
 const PARENT_ITEMS = [
   { to: '/home', icon: '🏠', label: '홈' },
   { to: '/stats', icon: '📊', label: '통계' },
-  { to: '/family', icon: '👪', label: '자녀 관리' },
+  { to: '/settings', icon: '⚙️', label: '설정' },
 ]
 
 export function BottomNav() {

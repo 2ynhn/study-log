@@ -10,10 +10,13 @@ import { ParentConnectPage } from './routes/ParentConnectPage'
 import { HomePage } from './routes/HomePage'
 import { StatsPage } from './routes/StatsPage'
 import { GoalsPage } from './routes/GoalsPage'
+import { SettingsPage } from './routes/SettingsPage'
+import { SubjectEditPage } from './routes/SubjectEditPage'
 import { ParentLinksPage } from './routes/ParentLinksPage'
 import { NotFoundPage } from './routes/NotFoundPage'
 
 const ONBOARDING_PATHS = ['/onboarding/role', '/onboarding/subjects', '/onboarding/connect']
+const PARENT_BLOCKED_PATHS = ['/goals', '/settings/parents', '/settings/subjects']
 
 function computeTarget(user: User | null, userDoc: UserDoc | null): string {
   if (!user) return '/login'
@@ -37,7 +40,7 @@ function resolveRedirect(pathname: string, user: User | null, userDoc: UserDoc |
 
   if (pathname === '/login' || ONBOARDING_PATHS.includes(pathname)) return '/home'
 
-  if (userDoc.role === 'parent' && (pathname === '/goals' || pathname === '/settings/parents')) {
+  if (userDoc.role === 'parent' && PARENT_BLOCKED_PATHS.includes(pathname)) {
     return '/home'
   }
 
@@ -71,6 +74,8 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/goals" element={<GoalsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings/subjects" element={<SubjectEditPage />} />
         <Route path="/settings/parents" element={<ParentLinksPage />} />
         <Route path="/family" element={<ParentConnectPage />} />
       </Route>

@@ -6,6 +6,15 @@
   --color-accent: #4f46e5;
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 
+  --chart-surface: #fcfcfb;
+  --chart-ink-primary: #0b0b0b;
+  --chart-ink-secondary: #52514e;
+  --chart-ink-muted: #898781;
+  --chart-gridline: #e1e0d9;
+  --chart-baseline: #c3c2b7;
+  --chart-series-actual: #2a78d6;
+  --chart-series-goal: #eb6834;
+
   color-scheme: light dark;
   font-family: var(--sans);
   -webkit-text-size-adjust: 100%;
@@ -19,6 +28,15 @@
     --color-text-muted: #9ca3af;
     --color-border: #2a2a2c;
     --color-accent: #818cf8;
+
+    --chart-surface: #1a1a19;
+    --chart-ink-primary: #ffffff;
+    --chart-ink-secondary: #c3c2b7;
+    --chart-ink-muted: #898781;
+    --chart-gridline: #2c2c2a;
+    --chart-baseline: #383835;
+    --chart-series-actual: #3987e5;
+    --chart-series-goal: #d95926;
   }
 }
 

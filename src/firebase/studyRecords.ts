@@ -31,3 +31,17 @@ export function subscribeRecordsForDate(studentUid: string, date: string, cb: (r
   const q = query(collection(db, 'users', studentUid, 'studyRecords'), where('date', '==', date))
   return onSnapshot(q, (snap) => cb(snap.docs.map((d) => d.data() as StudyRecord)))
 }
+
+export function subscribeRecordsForRange(
+  studentUid: string,
+  startDate: string,
+  endDate: string,
+  cb: (records: StudyRecord[]) => void,
+) {
+  const q = query(
+    collection(db, 'users', studentUid, 'studyRecords'),
+    where('date', '>=', startDate),
+    where('date', '<=', endDate),
+  )
+  return onSnapshot(q, (snap) => cb(snap.docs.map((d) => d.data() as StudyRecord)))
+}

@@ -5,21 +5,10 @@ export interface SelectedSubjects {
   상세과목: string[]
 }
 
-export type GoalPeriod = 'daily' | 'weekly' | 'monthly'
-
 export type SubjectGoals = Record<string, number>
 
 export interface UserGoals {
-  daily: SubjectGoals
   weekly: SubjectGoals
-  monthly: SubjectGoals
-}
-
-export interface AppUser {
-  uid: string
-  role: UserRole
-  selectedSubjects?: SelectedSubjects
-  goals?: UserGoals
 }
 
 export interface InviteCode {

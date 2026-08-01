@@ -16,10 +16,7 @@ export function GoalDragBar({ label, minutes, cap, onCommit }: GoalDragBarProps)
 
   return (
     <div className="meter-content">
-      <div className="meter-row-head">
-        <span className="meter-row-label">{label}</span>
-        <span className="muted meter-row-value">{display}분</span>
-      </div>
+      <span className="meter-row-label">{label}</span>
       <div
         ref={trackRef}
         className="meter-track"
@@ -33,6 +30,7 @@ export function GoalDragBar({ label, minutes, cap, onCommit }: GoalDragBarProps)
         {...handlers}
       >
         <div className="meter-fill-h" style={{ width: `${fillRatio * 100}%` }} />
+        <span className="meter-track-value">{display}분</span>
       </div>
       <div className="chip-row">
         <button type="button" className="chip" onClick={() => adjust(-15)}>

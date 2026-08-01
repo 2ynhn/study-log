@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { generateInviteCode } from '../firebase/inviteCodes'
 import { removeLink, subscribeParentsOfStudent } from '../firebase/links'
@@ -6,6 +7,7 @@ import type { StudentParentLink } from '../types'
 
 export function ParentLinksPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [parents, setParents] = useState<StudentParentLink[]>([])
   const [inviteCode, setInviteCode] = useState<string | null>(null)
   const [issuing, setIssuing] = useState(false)
@@ -31,7 +33,12 @@ export function ParentLinksPage() {
   return (
     <section className="page">
       <div className="page-header">
-        <h1>연결된 학부모 관리</h1>
+        <div className="page-header-top">
+          <button type="button" className="back-btn" onClick={() => navigate('/settings')} aria-label="뒤로가기">
+            ←
+          </button>
+          <h1>연결된 학부모 관리</h1>
+        </div>
       </div>
 
       {parents.length === 0 ? (

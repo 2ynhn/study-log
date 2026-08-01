@@ -5,28 +5,49 @@ function toDateString(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+function parseDateString(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
 export function todayString(): string {
   return toDateString(new Date())
 }
 
-export function startOfWeekString(base: Date = new Date()): string {
-  const d = new Date(base)
-  const day = d.getDay()
+export function addDaysToString(dateString: string, delta: number): string {
+  const date = parseDateString(dateString)
+  date.setDate(date.getDate() + delta)
+  return toDateString(date)
+}
+
+export function addWeeksToString(dateString: string, delta: number): string {
+  return addDaysToString(dateString, delta * 7)
+}
+
+export function startOfWeekString(dateString: string = todayString()): string {
+  const date = parseDateString(dateString)
+  const day = date.getDay()
   const diffToMonday = day === 0 ? -6 : 1 - day
-  d.setDate(d.getDate() + diffToMonday)
-  return toDateString(d)
+  date.setDate(date.getDate() + diffToMonday)
+  return toDateString(date)
 }
 
-export function endOfWeekString(base: Date = new Date()): string {
-  const start = new Date(startOfWeekString(base))
-  start.setDate(start.getDate() + 6)
-  return toDateString(start)
+export function endOfWeekString(dateString: string = todayString()): string {
+  return addDaysToString(startOfWeekString(dateString), 6)
 }
 
-export function startOfMonthString(base: Date = new Date()): string {
-  return toDateString(new Date(base.getFullYear(), base.getMonth(), 1))
+const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+
+export function formatDateLabel(dateString: string): string {
+  const date = parseDateString(dateString)
+  return `${date.getMonth() + 1}월 ${date.getDate()}일 (${WEEKDAY_LABELS[date.getDay()]})`
 }
 
-export function endOfMonthString(base: Date = new Date()): string {
-  return toDateString(new Date(base.getFullYear(), base.getMonth() + 1, 0))
+export function formatShortDate(dateString: string): string {
+  const date = parseDateString(dateString)
+  return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+export function formatWeekRangeLabel(startDateString: string, endDateString: string): string {
+  return `${formatShortDate(startDateString)} ~ ${formatShortDate(endDateString)}`
 }

@@ -4,39 +4,21 @@ import { buildStudyItems, type StudyItem } from '../data/subjects'
 import { subscribeChildrenOfParent } from '../firebase/links'
 import { subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { subscribeRecordsForRange } from '../firebase/studyRecords'
-import { endOfMonthString, endOfWeekString, startOfMonthString, startOfWeekString, todayString } from '../utils/date'
+import { addWeeksToString, endOfWeekString, formatWeekRangeLabel, startOfWeekString, todayString } from '../utils/date'
+import { DateNav } from '../components/DateNav'
 import { StatsBarChart, type StatsBarChartDatum } from '../components/StatsBarChart'
-import type { GoalPeriod, StudentParentLink, StudyRecord, SubjectGoals } from '../types'
+import type { StudentParentLink, StudyRecord, SubjectGoals } from '../types'
 
-const PERIOD_TABS: { period: GoalPeriod; label: string }[] = [
-  { period: 'daily', label: '일' },
-  { period: 'weekly', label: '주' },
-  { period: 'monthly', label: '월' },
-]
-
-function rangeForPeriod(period: GoalPeriod): [string, string] {
-  const now = new Date()
-  if (period === 'daily') {
-    const today = todayString()
-    return [today, today]
-  }
-  if (period === 'weekly') {
-    return [startOfWeekString(now), endOfWeekString(now)]
-  }
-  return [startOfMonthString(now), endOfMonthString(now)]
-}
-
-function useChartData(studentUid: string | null, items: StudyItem[], goalsForPeriod: SubjectGoals, period: GoalPeriod) {
+function useChartData(studentUid: string | null, items: StudyItem[], goalsForWeek: SubjectGoals, weekStart: string, weekEnd: string) {
   const [records, setRecords] = useState<StudyRecord[]>([])
-  const [start, end] = rangeForPeriod(period)
 
   useEffect(() => {
     if (!studentUid) {
       setRecords([])
       return
     }
-    return subscribeRecordsForRange(studentUid, start, end, setRecords)
-  }, [studentUid, start, end])
+    return subscribeRecordsForRange(studentUid, weekStart, weekEnd, setRecords)
+  }, [studentUid, weekStart, weekEnd])
 
   return useMemo<StatsBarChartDatum[]>(() => {
     const totals = new Map<string, number>()
@@ -46,9 +28,9 @@ function useChartData(studentUid: string | null, items: StudyItem[], goalsForPer
     return items.map((item) => ({
       name: item.label,
       실제: totals.get(item.subject) ?? 0,
-      목표: goalsForPeriod[item.subject] ?? 0,
+      목표: goalsForWeek[item.subject] ?? 0,
     }))
-  }, [items, records, goalsForPeriod])
+  }, [items, records, goalsForWeek])
 }
 
 function StatsTable({ data }: { data: StatsBarChartDatum[] }) {
@@ -75,15 +57,16 @@ function StatsTable({ data }: { data: StatsBarChartDatum[] }) {
   )
 }
 
-function StatsView({ studentUid, selectedSubjects, goals, period }: {
+function StatsView({ studentUid, selectedSubjects, goals, weekStart, weekEnd }: {
   studentUid: string
   selectedSubjects: UserDoc['selectedSubjects']
   goals: UserDoc['goals']
-  period: GoalPeriod
+  weekStart: string
+  weekEnd: string
 }) {
   const items = useMemo(() => buildStudyItems(selectedSubjects), [selectedSubjects])
-  const goalsForPeriod = goals?.[period] ?? {}
-  const data = useChartData(studentUid, items, goalsForPeriod, period)
+  const goalsForWeek = goals?.weekly ?? {}
+  const data = useChartData(studentUid, items, goalsForWeek, weekStart, weekEnd)
 
   if (items.length === 0) {
     return <p className="center-message">선택된 과목이 없습니다.</p>
@@ -99,12 +82,15 @@ function StatsView({ studentUid, selectedSubjects, goals, period }: {
 
 export function StatsPage() {
   const { user, userDoc } = useAuth()
-  const [period, setPeriod] = useState<GoalPeriod>('daily')
+  const [anchorDate, setAnchorDate] = useState(todayString())
   const [children, setChildren] = useState<StudentParentLink[]>([])
   const [activeChildUid, setActiveChildUid] = useState<string | null>(null)
   const [childDoc, setChildDoc] = useState<UserDoc | null>(null)
 
   const isParent = userDoc?.role === 'parent'
+  const weekStart = startOfWeekString(anchorDate)
+  const weekEnd = endOfWeekString(anchorDate)
+  const isCurrentWeek = weekStart === startOfWeekString(todayString())
 
   useEffect(() => {
     if (!isParent || !user) return
@@ -138,19 +124,14 @@ export function StatsPage() {
         <h1>통계</h1>
       </div>
 
-      <div className="tabs" role="tablist">
-        {PERIOD_TABS.map((tab) => (
-          <button
-            key={tab.period}
-            type="button"
-            className="tab"
-            aria-selected={tab.period === period}
-            onClick={() => setPeriod(tab.period)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <DateNav
+        label={formatWeekRangeLabel(weekStart, weekEnd)}
+        onPrev={() => setAnchorDate((d) => addWeeksToString(d, -1))}
+        onNext={() => setAnchorDate((d) => addWeeksToString(d, 1))}
+        nextDisabled={isCurrentWeek}
+        onToday={() => setAnchorDate(todayString())}
+        showToday={!isCurrentWeek}
+      />
 
       {isParent ? (
         children.length === 0 ? (
@@ -177,13 +158,20 @@ export function StatsPage() {
                 studentUid={activeChildUid}
                 selectedSubjects={childDoc?.selectedSubjects}
                 goals={childDoc?.goals}
-                period={period}
+                weekStart={weekStart}
+                weekEnd={weekEnd}
               />
             )}
           </>
         )
       ) : (
-        <StatsView studentUid={user.uid} selectedSubjects={userDoc.selectedSubjects} goals={userDoc.goals} period={period} />
+        <StatsView
+          studentUid={user.uid}
+          selectedSubjects={userDoc.selectedSubjects}
+          goals={userDoc.goals}
+          weekStart={weekStart}
+          weekEnd={weekEnd}
+        />
       )}
     </section>
   )

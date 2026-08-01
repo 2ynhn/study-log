@@ -24,7 +24,12 @@ export function SubjectEditPage() {
   return (
     <section className="page">
       <div className="page-header">
-        <h1>과목 변경</h1>
+        <div className="page-header-top">
+          <button type="button" className="back-btn" onClick={() => navigate('/settings')} aria-label="뒤로가기">
+            ←
+          </button>
+          <h1>과목 변경</h1>
+        </div>
         <p className="muted">공부할 과목을 추가하거나 제거하세요.</p>
       </div>
 

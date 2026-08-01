@@ -7,6 +7,7 @@
   --color-accent: #4f46e5;
   --color-accent-contrast: #ffffff;
   --color-accent-soft: rgba(79, 70, 229, 0.08);
+  --color-accent-medium: rgba(79, 70, 229, 0.35);
   --color-danger: #dc2626;
   --color-danger-soft: rgba(220, 38, 38, 0.08);
   --color-success: #0ca30c;
@@ -49,6 +50,7 @@
     --color-text-muted: #9a9aa2;
     --color-border: #2a2a2e;
     --color-accent-soft: rgba(129, 140, 248, 0.16);
+    --color-accent-medium: rgba(129, 140, 248, 0.35);
     --color-danger: #f87171;
     --color-danger-soft: rgba(248, 113, 113, 0.12);
 
@@ -570,6 +572,28 @@ p {
 }
 
 .meter-track--achieved .meter-fill-h {
+  background: var(--color-success);
+}
+
+.meter-fill-prior {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--color-accent-medium);
+}
+
+.meter-fill-today {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--color-accent);
+  transition:
+    width 0.15s ease,
+    left 0.15s ease;
+}
+
+.meter-track--achieved .meter-fill-today {
   background: var(--color-success);
 }
 

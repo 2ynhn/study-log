@@ -102,15 +102,16 @@ function StudentHome({ studentUid, selectedSubjects, goals }: {
           {goaled.map(({ item, goalMinutes }) => {
             const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
             const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
+            const otherDaysTotal = weekTotal - dayMinutes
             return (
               <li key={item.subject} className="card">
                 <GoalMeterBox
                   label={item.label}
                   minutes={weekTotal}
+                  priorMinutes={otherDaysTotal}
                   goalMinutes={goalMinutes}
                   widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
                   onCommit={(newWeekTotal) => {
-                    const otherDaysTotal = weekTotal - dayMinutes
                     const newDayMinutes = Math.max(0, newWeekTotal - otherDaysTotal)
                     setStudyMinutes(studentUid, selectedDate, item.subject, item.parentSubject, newDayMinutes)
                   }}
@@ -169,6 +170,13 @@ function ParentHome({ parentUid }: { parentUid: string }) {
     for (const record of records) map.set(record.subject, (map.get(record.subject) ?? 0) + record.minutes)
     return map
   }, [records])
+  const selectedDayMinutesBySubject = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const record of records) {
+      if (record.date === selectedDate) map.set(record.subject, record.minutes)
+    }
+    return map
+  }, [records, selectedDate])
 
   if (children.length === 0) {
     return <p className="center-message">연결된 자녀가 없습니다.</p>
@@ -212,17 +220,22 @@ function ParentHome({ parentUid }: { parentUid: string }) {
         <>
           {goaled.length > 0 && (
             <ul className="card-list">
-              {goaled.map(({ item, goalMinutes }) => (
-                <li key={item.subject} className="card">
-                  <GoalMeterBox
-                    label={item.label}
-                    minutes={weekTotalsBySubject.get(item.subject) ?? 0}
-                    goalMinutes={goalMinutes}
-                    widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
-                    readOnly
-                  />
-                </li>
-              ))}
+              {goaled.map(({ item, goalMinutes }) => {
+                const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
+                const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
+                return (
+                  <li key={item.subject} className="card">
+                    <GoalMeterBox
+                      label={item.label}
+                      minutes={weekTotal}
+                      priorMinutes={weekTotal - dayMinutes}
+                      goalMinutes={goalMinutes}
+                      widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
+                      readOnly
+                    />
+                  </li>
+                )
+              })}
             </ul>
           )}
           {ungoaled.length > 0 && (

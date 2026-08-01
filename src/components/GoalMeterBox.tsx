@@ -3,19 +3,31 @@ import { useDragFillValue } from '../hooks/useDragFillValue'
 interface GoalMeterBoxProps {
   label: string
   minutes: number
+  priorMinutes: number
   goalMinutes: number
   widthPercent: number
   readOnly?: boolean
   onCommit?: (minutes: number) => void
 }
 
-export function GoalMeterBox({ label, minutes, goalMinutes, widthPercent, readOnly = false, onCommit }: GoalMeterBoxProps) {
+export function GoalMeterBox({
+  label,
+  minutes,
+  priorMinutes,
+  goalMinutes,
+  widthPercent,
+  readOnly = false,
+  onCommit,
+}: GoalMeterBoxProps) {
   const { trackRef, display, fillRatio, adjust, handlers } = useDragFillValue({
     value: minutes,
     max: goalMinutes,
     onCommit: onCommit ?? (() => {}),
   })
   const achieved = display >= goalMinutes
+  const priorRatio = goalMinutes > 0 ? Math.min(priorMinutes / goalMinutes, 1) : 0
+  const todayRatio = Math.max(0, fillRatio - priorRatio)
+  const todayMinutes = Math.max(0, display - priorMinutes)
 
   return (
     <div className="meter-content">
@@ -42,10 +54,11 @@ export function GoalMeterBox({ label, minutes, goalMinutes, widthPercent, readOn
         aria-valuemin={readOnly ? undefined : 0}
         aria-valuemax={readOnly ? undefined : goalMinutes}
         aria-valuenow={readOnly ? undefined : display}
-        aria-valuetext={readOnly ? undefined : `${display}분 / 목표 ${goalMinutes}분`}
+        aria-valuetext={readOnly ? undefined : `누적 ${priorMinutes}분 + 오늘 ${todayMinutes}분 / 목표 ${goalMinutes}분`}
         {...(readOnly ? {} : handlers)}
       >
-        <div className="meter-fill-h" style={{ width: `${fillRatio * 100}%` }} />
+        <div className="meter-fill-prior" style={{ width: `${priorRatio * 100}%` }} />
+        <div className="meter-fill-today" style={{ left: `${priorRatio * 100}%`, width: `${todayRatio * 100}%` }} />
         <span className="meter-track-value">
           {display} / {goalMinutes}분
         </span>

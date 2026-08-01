@@ -45,4 +45,14 @@ firestore.rules   Firestore 보안 규칙 초안
 firebase deploy --only firestore:rules
 ```
 
+## 배포 (Cloudflare Pages)
+
+호스팅은 Firebase Hosting이 아닌 **Cloudflare Pages**를 사용합니다.
+
+- Build command: `npm run build`
+- Build output directory: `dist`
+- `public/_redirects`에 `/* /index.html 200`을 두어 SPA 클라이언트 라우팅(새로고침/직접 진입)이 동작하도록 함
+- 환경변수(`VITE_FIREBASE_*`)는 Cloudflare Pages 프로젝트 설정의 Environment Variables에 등록
+- 배포 후 발급되는 Pages 도메인을 Firebase 콘솔의 **Authentication → Settings → Authorized domains**에 추가해야 로그인이 동작함
+
 자세한 기획 내용은 프로젝트 이슈/기획서를 참고하세요.

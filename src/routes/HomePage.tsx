@@ -5,7 +5,7 @@ import { buildStudyItems, type StudyItem } from '../data/subjects'
 import { subscribeChildrenOfParent } from '../firebase/links'
 import { subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { setStudyMinutes, subscribeRecordsForRange } from '../firebase/studyRecords'
-import { addDaysToString, endOfWeekString, formatDateLabel, startOfWeekString, todayString } from '../utils/date'
+import { addDaysToString, endOfWeekString, formatDateLabel, formatIsoWeekLabel, startOfWeekString, todayString } from '../utils/date'
 import { DateNav } from '../components/DateNav'
 import { GoalMeterBox } from '../components/GoalMeterBox'
 import type { StudentParentLink, StudyRecord } from '../types'
@@ -35,7 +35,6 @@ function useDateNavState() {
     selectedDate,
     goPrevDay: () => setSelectedDate((d) => addDaysToString(d, -1)),
     goNextDay: () => setSelectedDate((d) => addDaysToString(d, 1)),
-    goToday: () => setSelectedDate(todayString()),
   }
 }
 
@@ -44,7 +43,7 @@ function StudentHome({ studentUid, selectedSubjects, goals }: {
   selectedSubjects: UserDoc['selectedSubjects']
   goals: UserDoc['goals']
 }) {
-  const { selectedDate, goPrevDay, goNextDay, goToday } = useDateNavState()
+  const { selectedDate, goPrevDay, goNextDay } = useDateNavState()
   const items = useMemo(() => buildStudyItems(selectedSubjects), [selectedSubjects])
   const records = useWeekRecords(studentUid, selectedDate)
 
@@ -65,11 +64,11 @@ function StudentHome({ studentUid, selectedSubjects, goals }: {
   const dateNav = (
     <DateNav
       label={formatDateLabel(selectedDate)}
+      sublabel={formatIsoWeekLabel(selectedDate)}
       onPrev={goPrevDay}
       onNext={goNextDay}
       nextDisabled={selectedDate >= todayString()}
-      onToday={goToday}
-      showToday={selectedDate !== todayString()}
+      isCurrent={selectedDate === todayString()}
     />
   )
 
@@ -141,7 +140,7 @@ function ParentHome({ parentUid }: { parentUid: string }) {
   const [children, setChildren] = useState<StudentParentLink[]>([])
   const [activeChildUid, setActiveChildUid] = useState<string | null>(null)
   const [childDoc, setChildDoc] = useState<UserDoc | null>(null)
-  const { selectedDate, goPrevDay, goNextDay, goToday } = useDateNavState()
+  const { selectedDate, goPrevDay, goNextDay } = useDateNavState()
 
   useEffect(() => subscribeChildrenOfParent(parentUid, setChildren), [parentUid])
 
@@ -201,11 +200,11 @@ function ParentHome({ parentUid }: { parentUid: string }) {
       )}
       <DateNav
         label={formatDateLabel(selectedDate)}
+        sublabel={formatIsoWeekLabel(selectedDate)}
         onPrev={goPrevDay}
         onNext={goNextDay}
         nextDisabled={selectedDate >= todayString()}
-        onToday={goToday}
-        showToday={selectedDate !== todayString()}
+        isCurrent={selectedDate === todayString()}
       />
       {items.length === 0 ? (
         <p className="center-message">아직 선택된 과목이 없습니다.</p>

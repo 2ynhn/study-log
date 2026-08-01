@@ -51,3 +51,15 @@ export function formatShortDate(dateString: string): string {
 export function formatWeekRangeLabel(startDateString: string, endDateString: string): string {
   return `${formatShortDate(startDateString)} ~ ${formatShortDate(endDateString)}`
 }
+
+// ISO 8601 week number (Monday-start weeks, matching startOfWeekString)
+export function formatIsoWeekLabel(dateString: string): string {
+  const date = parseDateString(dateString)
+  const thursday = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const isoDayNum = thursday.getUTCDay() || 7
+  thursday.setUTCDate(thursday.getUTCDate() + 4 - isoDayNum)
+  const isoYear = thursday.getUTCFullYear()
+  const yearStart = Date.UTC(isoYear, 0, 1)
+  const week = Math.ceil(((thursday.getTime() - yearStart) / 86400000 + 1) / 7)
+  return `${String(isoYear).slice(-2)}년 ${week}주차`
+}

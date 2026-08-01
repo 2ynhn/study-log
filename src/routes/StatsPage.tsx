@@ -4,7 +4,14 @@ import { buildStudyItems, type StudyItem } from '../data/subjects'
 import { subscribeChildrenOfParent } from '../firebase/links'
 import { subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { subscribeRecordsForRange } from '../firebase/studyRecords'
-import { addWeeksToString, endOfWeekString, formatWeekRangeLabel, startOfWeekString, todayString } from '../utils/date'
+import {
+  addWeeksToString,
+  endOfWeekString,
+  formatIsoWeekLabel,
+  formatWeekRangeLabel,
+  startOfWeekString,
+  todayString,
+} from '../utils/date'
 import { DateNav } from '../components/DateNav'
 import { StatsBarChart, type StatsBarChartDatum } from '../components/StatsBarChart'
 import type { StudentParentLink, StudyRecord, SubjectGoals } from '../types'
@@ -126,12 +133,12 @@ export function StatsPage() {
 
       <DateNav
         label={formatWeekRangeLabel(weekStart, weekEnd)}
+        sublabel={formatIsoWeekLabel(weekStart)}
         onPrev={() => setAnchorDate((d) => addWeeksToString(d, -1))}
         onNext={() => setAnchorDate((d) => addWeeksToString(d, 1))}
         nextDisabled={isCurrentWeek}
-        onToday={() => setAnchorDate(todayString())}
-        showToday={!isCurrentWeek}
-        todayLabel="이번 주"
+        isCurrent={isCurrentWeek}
+        currentLabel="이번 주"
       />
 
       {isParent ? (

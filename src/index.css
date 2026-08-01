@@ -180,21 +180,32 @@ p {
 
 .date-nav-label {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.date-nav-label-main {
+  display: flex;
   align-items: center;
   gap: var(--space-2);
   font-size: 15px;
   font-weight: 600;
 }
 
+.date-nav-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .date-nav-today {
   background: var(--color-accent-soft);
   color: var(--color-accent);
-  border: none;
   border-radius: var(--radius-full);
-  padding: 4px 10px;
-  font-size: 12px;
+  padding: 3px 9px;
+  font-size: 11px;
   font-weight: 700;
-  cursor: pointer;
 }
 
 .auth-page {

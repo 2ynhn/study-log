@@ -13,13 +13,15 @@ interface SubjectCardProps {
 
 export function SubjectCard({ label, minutes, readOnly = false, onAddMinutes }: SubjectCardProps) {
   return (
-    <li>
-      <h3>{label}</h3>
-      <p>오늘 {minutes}분</p>
+    <li className="card">
+      <div>
+        <h3>{label}</h3>
+        <p className="muted">오늘 {minutes}분</p>
+      </div>
       {!readOnly && (
-        <div>
+        <div className="chip-row">
           {PRESETS.map((preset) => (
-            <button key={preset.label} type="button" onClick={() => onAddMinutes?.(preset.minutes)}>
+            <button key={preset.label} type="button" className="chip" onClick={() => onAddMinutes?.(preset.minutes)}>
               {preset.label}
             </button>
           ))}

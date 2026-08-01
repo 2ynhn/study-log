@@ -30,11 +30,11 @@ function StudentHome({ studentUid, selectedSubjects }: { studentUid: string; sel
   }, [records])
 
   if (items.length === 0) {
-    return <p>설정에서 공부할 과목을 먼저 선택해주세요.</p>
+    return <p className="center-message">설정에서 공부할 과목을 먼저 선택해주세요.</p>
   }
 
   return (
-    <ul>
+    <ul className="card-list">
       {items.map((item) => (
         <SubjectCard
           key={item.subject}
@@ -81,18 +81,19 @@ function ParentHome({ parentUid }: { parentUid: string }) {
   }, [records])
 
   if (children.length === 0) {
-    return <p>연결된 자녀가 없습니다.</p>
+    return <p className="center-message">연결된 자녀가 없습니다.</p>
   }
 
   return (
     <>
       {children.length > 1 && (
-        <div>
+        <div className="tabs">
           {children.map((child) => (
             <button
               key={child.studentUid}
               type="button"
-              disabled={child.studentUid === activeChildUid}
+              className="tab"
+              aria-selected={child.studentUid === activeChildUid}
               onClick={() => setActiveChildUid(child.studentUid)}
             >
               {child.studentUid}
@@ -101,9 +102,9 @@ function ParentHome({ parentUid }: { parentUid: string }) {
         </div>
       )}
       {items.length === 0 ? (
-        <p>아직 선택된 과목이 없습니다.</p>
+        <p className="center-message">아직 선택된 과목이 없습니다.</p>
       ) : (
-        <ul>
+        <ul className="card-list">
           {items.map((item) => (
             <SubjectCard key={item.subject} label={item.label} minutes={minutesBySubject.get(item.subject) ?? 0} readOnly />
           ))}
@@ -119,8 +120,10 @@ export function HomePage() {
   if (!user || !userDoc?.role) return null
 
   return (
-    <section>
-      <h1>홈</h1>
+    <section className="page">
+      <div className="page-header">
+        <h1>홈</h1>
+      </div>
       {userDoc.role === 'student' ? (
         <StudentHome studentUid={user.uid} selectedSubjects={userDoc.selectedSubjects} />
       ) : (

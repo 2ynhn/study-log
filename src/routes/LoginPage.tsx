@@ -50,10 +50,13 @@ export function LoginPage() {
   }
 
   return (
-    <section>
-      <h1>{mode === 'login' ? '로그인' : '계정 만들기'}</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
+    <section className="auth-page">
+      <div className="page-header">
+        <h1>{mode === 'login' ? '로그인' : '계정 만들기'}</h1>
+        <p className="muted">공부시간 트래커에 오신 걸 환영해요.</p>
+      </div>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="field">
           <label htmlFor="loginId">아이디</label>
           <input
             id="loginId"
@@ -65,7 +68,7 @@ export function LoginPage() {
             required
           />
         </div>
-        <div>
+        <div className="field">
           <label htmlFor="password">비밀번호</label>
           <input
             id="password"
@@ -77,12 +80,12 @@ export function LoginPage() {
             required
           />
         </div>
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={submitting}>
+        {error && <p role="alert" className="alert">{error}</p>}
+        <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
           {mode === 'login' ? '로그인' : '가입하기'}
         </button>
       </form>
-      <button type="button" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
+      <button type="button" className="btn btn-ghost" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
         {mode === 'login' ? '계정이 없으신가요? 가입하기' : '이미 계정이 있으신가요? 로그인'}
       </button>
     </section>

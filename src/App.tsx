@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import type { User } from 'firebase/auth'
 import { useAuth } from './auth/AuthContext'
 import type { UserDoc } from './firebase/users'
+import { AppShell } from './components/AppShell'
 import { LoginPage } from './routes/LoginPage'
 import { RoleSelectPage } from './routes/RoleSelectPage'
 import { SubjectSetupPage } from './routes/SubjectSetupPage'
@@ -40,6 +41,10 @@ function resolveRedirect(pathname: string, user: User | null, userDoc: UserDoc |
     return '/home'
   }
 
+  if (userDoc.role === 'student' && pathname === '/family') {
+    return '/home'
+  }
+
   return null
 }
 
@@ -48,7 +53,7 @@ function App() {
   const location = useLocation()
 
   if (loading) {
-    return <p>로딩 중...</p>
+    return <p className="center-message">로딩 중...</p>
   }
 
   const redirect = resolveRedirect(location.pathname, user, userDoc)
@@ -62,10 +67,13 @@ function App() {
       <Route path="/onboarding/role" element={<RoleSelectPage />} />
       <Route path="/onboarding/subjects" element={<SubjectSetupPage />} />
       <Route path="/onboarding/connect" element={<ParentConnectPage />} />
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/stats" element={<StatsPage />} />
-      <Route path="/goals" element={<GoalsPage />} />
-      <Route path="/settings/parents" element={<ParentLinksPage />} />
+      <Route element={<AppShell />}>
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/stats" element={<StatsPage />} />
+        <Route path="/goals" element={<GoalsPage />} />
+        <Route path="/settings/parents" element={<ParentLinksPage />} />
+        <Route path="/family" element={<ParentConnectPage />} />
+      </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )

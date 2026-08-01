@@ -26,25 +26,29 @@ export function GoalsPage() {
 
   if (items.length === 0) {
     return (
-      <section>
-        <h1>목표 설정</h1>
-        <p>설정에서 공부할 과목을 먼저 선택해주세요.</p>
+      <section className="page">
+        <div className="page-header">
+          <h1>목표 설정</h1>
+        </div>
+        <p className="center-message">설정에서 공부할 과목을 먼저 선택해주세요.</p>
       </section>
     )
   }
 
   return (
-    <section>
-      <h1>목표 설정</h1>
-      <p>과목별 일간 / 주간 / 월간 목표 시간을 설정하세요.</p>
+    <section className="page">
+      <div className="page-header">
+        <h1>목표 설정</h1>
+        <p className="muted">과목별 일간 / 주간 / 월간 목표 시간을 설정하세요.</p>
+      </div>
 
-      <div role="tablist">
+      <div className="tabs" role="tablist">
         {PERIOD_TABS.map((tab) => (
           <button
             key={tab.period}
             type="button"
+            className="tab"
             aria-selected={tab.period === period}
-            disabled={tab.period === period}
             onClick={() => setPeriod(tab.period)}
           >
             {tab.label}
@@ -52,22 +56,25 @@ export function GoalsPage() {
         ))}
       </div>
 
-      <ul>
+      <ul className="card-list">
         {items.map((item) => (
-          <li key={item.subject}>
-            <h3>{item.label}</h3>
-            <p>목표 {goalsForPeriod[item.subject] ?? 0}분</p>
+          <li key={item.subject} className="card">
             <div>
+              <h3>{item.label}</h3>
+              <p className="muted">목표 {goalsForPeriod[item.subject] ?? 0}분</p>
+            </div>
+            <div className="chip-row">
               {PRESETS.map((preset) => (
                 <button
                   key={preset.label}
                   type="button"
+                  className="chip"
                   onClick={() => addGoalMinutes(user.uid, period, item.subject, preset.minutes)}
                 >
                   {preset.label}
                 </button>
               ))}
-              <button type="button" onClick={() => resetGoalMinutes(user.uid, period, item.subject)}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => resetGoalMinutes(user.uid, period, item.subject)}>
                 초기화
               </button>
             </div>

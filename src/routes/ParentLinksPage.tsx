@@ -29,17 +29,19 @@ export function ParentLinksPage() {
   }
 
   return (
-    <section>
-      <h1>연결된 학부모 관리</h1>
+    <section className="page">
+      <div className="page-header">
+        <h1>연결된 학부모 관리</h1>
+      </div>
 
       {parents.length === 0 ? (
-        <p>연결된 학부모가 없습니다.</p>
+        <p className="center-message">연결된 학부모가 없습니다.</p>
       ) : (
-        <ul>
+        <ul className="card">
           {parents.map((link) => (
-            <li key={link.parentUid}>
+            <li key={link.parentUid} className="card-row">
               {link.parentUid}
-              <button type="button" onClick={() => handleRemove(link.parentUid)}>
+              <button type="button" className="btn btn-danger" onClick={() => handleRemove(link.parentUid)}>
                 연결 해제
               </button>
             </li>
@@ -47,10 +49,12 @@ export function ParentLinksPage() {
         </ul>
       )}
 
-      <button type="button" disabled={issuing} onClick={handleIssueCode}>
-        새 초대코드 발급
-      </button>
-      {inviteCode && <p>초대코드: {inviteCode} (72시간 유효, 1회용)</p>}
+      <div className="card">
+        <button type="button" className="btn btn-secondary btn-block" disabled={issuing} onClick={handleIssueCode}>
+          새 초대코드 발급
+        </button>
+        {inviteCode && <p>초대코드: <strong>{inviteCode}</strong> (72시간 유효, 1회용)</p>}
+      </div>
     </section>
   )
 }

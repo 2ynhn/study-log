@@ -51,27 +51,32 @@ export function SubjectSetupPage() {
   }
 
   return (
-    <section>
-      <h1>공부할 과목 선택</h1>
-      <p>대표과목을 선택하고, 필요하면 펼쳐서 상세과목을 선택하세요.</p>
-      <ul>
+    <section className="page">
+      <div className="page-header">
+        <h1>공부할 과목 선택</h1>
+        <p className="muted">대표과목을 선택하고, 필요하면 펼쳐서 상세과목을 선택하세요.</p>
+      </div>
+
+      <ul className="card-list">
         {SUBJECT_GROUPS.map((group) => (
-          <li key={group.name}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selected.대표과목.includes(group.name)}
-                onChange={() => toggleGroup(group.name)}
-              />
-              {group.name}
-            </label>
-            <button type="button" onClick={() => setExpanded(expanded === group.name ? null : group.name)}>
-              {expanded === group.name ? '접기' : '상세 선택'}
-            </button>
+          <li key={group.name} className="card">
+            <div className="check-row">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selected.대표과목.includes(group.name)}
+                  onChange={() => toggleGroup(group.name)}
+                />
+                {group.name}
+              </label>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setExpanded(expanded === group.name ? null : group.name)}>
+                {expanded === group.name ? '접기' : '상세 선택'}
+              </button>
+            </div>
             {expanded === group.name && (
-              <ul>
+              <ul className="detail-list">
                 {group.detail.map((detail) => (
-                  <li key={detail}>
+                  <li key={detail} className="check-row">
                     <label>
                       <input
                         type="checkbox"
@@ -88,16 +93,16 @@ export function SubjectSetupPage() {
         ))}
       </ul>
 
-      <section>
+      <div className="card">
         <h2>학부모 초대코드</h2>
-        <p>초대코드를 발급해 학부모에게 공유하세요. (72시간 동안 1회 사용 가능)</p>
-        <button type="button" disabled={issuing} onClick={handleIssueCode}>
+        <p className="muted">초대코드를 발급해 학부모에게 공유하세요. (72시간 동안 1회 사용 가능)</p>
+        <button type="button" className="btn btn-secondary btn-block" disabled={issuing} onClick={handleIssueCode}>
           초대코드 발급
         </button>
-        {inviteCode && <p>초대코드: {inviteCode}</p>}
-      </section>
+        {inviteCode && <p>초대코드: <strong>{inviteCode}</strong></p>}
+      </div>
 
-      <button type="button" disabled={saving} onClick={handleComplete}>
+      <button type="button" className="btn btn-primary btn-block" disabled={saving} onClick={handleComplete}>
         완료
       </button>
     </section>

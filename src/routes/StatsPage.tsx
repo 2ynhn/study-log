@@ -53,7 +53,7 @@ function useChartData(studentUid: string | null, items: StudyItem[], goalsForPer
 
 function StatsTable({ data }: { data: StatsBarChartDatum[] }) {
   return (
-    <table>
+    <table className="data-table">
       <caption>과목별 실제/목표 공부 시간(분)</caption>
       <thead>
         <tr>
@@ -86,14 +86,14 @@ function StatsView({ studentUid, selectedSubjects, goals, period }: {
   const data = useChartData(studentUid, items, goalsForPeriod, period)
 
   if (items.length === 0) {
-    return <p>선택된 과목이 없습니다.</p>
+    return <p className="center-message">선택된 과목이 없습니다.</p>
   }
 
   return (
-    <>
+    <div className="card">
       <StatsBarChart data={data} />
       <StatsTable data={data} />
-    </>
+    </div>
   )
 }
 
@@ -133,16 +133,18 @@ export function StatsPage() {
   if (!user || !userDoc?.role) return null
 
   return (
-    <section>
-      <h1>통계</h1>
+    <section className="page">
+      <div className="page-header">
+        <h1>통계</h1>
+      </div>
 
-      <div role="tablist">
+      <div className="tabs" role="tablist">
         {PERIOD_TABS.map((tab) => (
           <button
             key={tab.period}
             type="button"
+            className="tab"
             aria-selected={tab.period === period}
-            disabled={tab.period === period}
             onClick={() => setPeriod(tab.period)}
           >
             {tab.label}
@@ -152,16 +154,17 @@ export function StatsPage() {
 
       {isParent ? (
         children.length === 0 ? (
-          <p>연결된 자녀가 없습니다.</p>
+          <p className="center-message">연결된 자녀가 없습니다.</p>
         ) : (
           <>
             {children.length > 1 && (
-              <div>
+              <div className="tabs">
                 {children.map((child) => (
                   <button
                     key={child.studentUid}
                     type="button"
-                    disabled={child.studentUid === activeChildUid}
+                    className="tab"
+                    aria-selected={child.studentUid === activeChildUid}
                     onClick={() => setActiveChildUid(child.studentUid)}
                   >
                     {child.studentUid}

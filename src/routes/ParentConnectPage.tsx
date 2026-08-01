@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { completeOnboarding } from '../firebase/users'
 import { RedeemInviteCodeError, redeemInviteCode } from '../firebase/inviteCodes'
@@ -17,7 +18,8 @@ function redeemErrorMessage(reason: string): string {
 }
 
 export function ParentConnectPage() {
-  const { user } = useAuth()
+  const { user, userDoc } = useAuth()
+  const navigate = useNavigate()
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -46,38 +48,50 @@ export function ParentConnectPage() {
   async function handleComplete() {
     if (!user) return
     await completeOnboarding(user.uid)
+    navigate('/home')
   }
 
   return (
-    <section>
-      <h1>자녀 연결</h1>
-      <p>자녀의 초대코드를 입력해 연결하세요. (여러 자녀 추가 가능)</p>
+    <section className="page">
+      <div className="page-header">
+        <h1>자녀 연결</h1>
+        <p className="muted">자녀의 초대코드를 입력해 연결하세요. 여러 명 추가할 수 있어요.</p>
+      </div>
 
       {children.length > 0 && (
-        <ul>
+        <ul className="card-list">
           {children.map((link) => (
-            <li key={link.studentUid}>연결됨: {link.studentUid}</li>
+            <li key={link.studentUid} className="card card-row">
+              연결됨: {link.studentUid}
+            </li>
           ))}
         </ul>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="inviteCode">초대코드</label>
-        <input
-          id="inviteCode"
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
-          maxLength={6}
-          required
-        />
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={submitting}>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="inviteCode">초대코드</label>
+          <input
+            id="inviteCode"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            maxLength={6}
+            required
+          />
+        </div>
+        {error && <p role="alert" className="alert">{error}</p>}
+        <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
           자녀 추가
         </button>
       </form>
 
-      <button type="button" onClick={handleComplete} disabled={children.length === 0}>
-        완료
+      <button
+        type="button"
+        className="btn btn-secondary btn-block"
+        onClick={handleComplete}
+        disabled={children.length === 0}
+      >
+        {userDoc?.onboardingComplete ? '홈으로 가기' : '완료'}
       </button>
     </section>
   )

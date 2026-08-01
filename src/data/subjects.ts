@@ -1,3 +1,5 @@
+import type { SelectedSubjects } from '../types'
+
 export interface SubjectGroup {
   name: string
   detail: string[]
@@ -82,3 +84,26 @@ export const SUBJECT_GROUPS: SubjectGroup[] = [
     detail: ['진로와 직업', '생태와 환경', '논리와 사고', '철학', '심리학', '교육학', '논술'],
   },
 ]
+
+export interface StudyItem {
+  subject: string
+  parentSubject: string
+  label: string
+}
+
+export function buildStudyItems(selected: SelectedSubjects | undefined): StudyItem[] {
+  if (!selected) return []
+  const items: StudyItem[] = []
+  for (const groupName of selected.대표과목) {
+    const group = SUBJECT_GROUPS.find((g) => g.name === groupName)
+    const details = group ? selected.상세과목.filter((d) => group.detail.includes(d)) : []
+    if (details.length === 0) {
+      items.push({ subject: groupName, parentSubject: groupName, label: groupName })
+    } else {
+      for (const detail of details) {
+        items.push({ subject: detail, parentSubject: groupName, label: `${groupName} · ${detail}` })
+      }
+    }
+  }
+  return items
+}

@@ -1,4 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import type { User } from 'firebase/auth'
+import { useAuth } from './auth/AuthContext'
+import type { UserDoc } from './firebase/users'
 import { LoginPage } from './routes/LoginPage'
 import { RoleSelectPage } from './routes/RoleSelectPage'
 import { SubjectSetupPage } from './routes/SubjectSetupPage'
@@ -9,10 +12,52 @@ import { GoalsPage } from './routes/GoalsPage'
 import { ParentLinksPage } from './routes/ParentLinksPage'
 import { NotFoundPage } from './routes/NotFoundPage'
 
+const ONBOARDING_PATHS = ['/onboarding/role', '/onboarding/subjects', '/onboarding/connect']
+
+function computeTarget(user: User | null, userDoc: UserDoc | null): string {
+  if (!user) return '/login'
+  if (!userDoc?.role) return '/onboarding/role'
+  if (!userDoc.onboardingComplete) return userDoc.role === 'student' ? '/onboarding/subjects' : '/onboarding/connect'
+  return '/home'
+}
+
+function resolveRedirect(pathname: string, user: User | null, userDoc: UserDoc | null): string | null {
+  const target = computeTarget(user, userDoc)
+
+  if (pathname === '/') return target
+
+  if (!user) {
+    return pathname === '/login' ? null : '/login'
+  }
+
+  if (!userDoc?.role || !userDoc.onboardingComplete) {
+    return pathname === target ? null : target
+  }
+
+  if (pathname === '/login' || ONBOARDING_PATHS.includes(pathname)) return '/home'
+
+  if (userDoc.role === 'parent' && (pathname === '/goals' || pathname === '/settings/parents')) {
+    return '/home'
+  }
+
+  return null
+}
+
 function App() {
+  const { user, userDoc, loading } = useAuth()
+  const location = useLocation()
+
+  if (loading) {
+    return <p>로딩 중...</p>
+  }
+
+  const redirect = resolveRedirect(location.pathname, user, userDoc)
+  if (redirect && redirect !== location.pathname) {
+    return <Navigate to={redirect} replace />
+  }
+
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/onboarding/role" element={<RoleSelectPage />} />
       <Route path="/onboarding/subjects" element={<SubjectSetupPage />} />

@@ -15,6 +15,8 @@ function errorMessage(code: string): string {
       return '아이디 또는 비밀번호가 올바르지 않습니다.'
     case 'auth/weak-password':
       return '비밀번호는 6자 이상이어야 합니다.'
+    case 'auth/invalid-email':
+      return '아이디에 @ 등 사용할 수 없는 문자가 포함되어 있어요.'
     default:
       return '오류가 발생했습니다. 다시 시도해주세요.'
   }
@@ -58,6 +60,8 @@ export function LoginPage() {
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
             autoComplete="username"
+            pattern="[^\s@]+"
+            title="공백과 @ 문자는 사용할 수 없어요."
             required
           />
         </div>

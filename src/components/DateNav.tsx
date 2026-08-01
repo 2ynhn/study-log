@@ -5,9 +5,18 @@ interface DateNavProps {
   nextDisabled?: boolean
   onToday?: () => void
   showToday?: boolean
+  todayLabel?: string
 }
 
-export function DateNav({ label, onPrev, onNext, nextDisabled = false, onToday, showToday = false }: DateNavProps) {
+export function DateNav({
+  label,
+  onPrev,
+  onNext,
+  nextDisabled = false,
+  onToday,
+  showToday = false,
+  todayLabel = '오늘',
+}: DateNavProps) {
   return (
     <div className="date-nav">
       <button type="button" className="date-nav-arrow" onClick={onPrev} aria-label="이전">
@@ -17,7 +26,7 @@ export function DateNav({ label, onPrev, onNext, nextDisabled = false, onToday, 
         <span>{label}</span>
         {showToday && onToday && (
           <button type="button" className="date-nav-today" onClick={onToday}>
-            오늘
+            {todayLabel}
           </button>
         )}
       </div>

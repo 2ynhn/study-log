@@ -19,7 +19,19 @@ export function GoalMeterBox({ label, minutes, goalMinutes, widthPercent, readOn
 
   return (
     <div className="meter-content">
-      <span className="meter-row-label">{label}</span>
+      <div className="meter-header-row">
+        <span className="meter-row-label">{label}</span>
+        {!readOnly && (
+          <div className="chip-row">
+            <button type="button" className="chip" onClick={() => adjust(-15)}>
+              -15분
+            </button>
+            <button type="button" className="chip" onClick={() => adjust(15)}>
+              +15분
+            </button>
+          </div>
+        )}
+      </div>
       <div
         ref={trackRef}
         className={`meter-track${achieved ? ' meter-track--achieved' : ''}`}
@@ -43,16 +55,6 @@ export function GoalMeterBox({ label, minutes, goalMinutes, widthPercent, readOn
           </span>
         )}
       </div>
-      {!readOnly && (
-        <div className="chip-row">
-          <button type="button" className="chip" onClick={() => adjust(-15)}>
-            -15분
-          </button>
-          <button type="button" className="chip" onClick={() => adjust(15)}>
-            +15분
-          </button>
-        </div>
-      )}
     </div>
   )
 }

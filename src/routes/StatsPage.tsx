@@ -131,6 +131,7 @@ export function StatsPage() {
         nextDisabled={isCurrentWeek}
         onToday={() => setAnchorDate(todayString())}
         showToday={!isCurrentWeek}
+        todayLabel="이번 주"
       />
 
       {isParent ? (

@@ -249,9 +249,6 @@ export function HomePage() {
 
   return (
     <section className="page">
-      <div className="page-header">
-        <h1>홈</h1>
-      </div>
       {userDoc.role === 'student' ? (
         <StudentHome studentUid={user.uid} selectedSubjects={userDoc.selectedSubjects} goals={userDoc.goals} />
       ) : (

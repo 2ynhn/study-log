@@ -1,4 +1,4 @@
-import { collection, doc, increment, onSnapshot, query, serverTimestamp, setDoc, where } from 'firebase/firestore'
+import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, where } from 'firebase/firestore'
 import { db } from './config'
 import type { StudyRecord } from '../types'
 
@@ -6,12 +6,12 @@ function studyRecordId(date: string, subject: string) {
   return `${date}_${subject}`
 }
 
-export async function addStudyMinutes(
+export async function setStudyMinutes(
   studentUid: string,
   date: string,
   subject: string,
   parentSubject: string,
-  minutesDelta: number,
+  minutes: number,
 ) {
   const ref = doc(db, 'users', studentUid, 'studyRecords', studyRecordId(date, subject))
   await setDoc(
@@ -20,7 +20,7 @@ export async function addStudyMinutes(
       date,
       subject,
       parentSubject,
-      minutes: increment(minutesDelta),
+      minutes: Math.max(0, minutes),
       updatedAt: serverTimestamp(),
     },
     { merge: true },

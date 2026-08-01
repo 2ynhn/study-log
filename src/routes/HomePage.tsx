@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { buildStudyItems } from '../data/subjects'
+import { buildStudyItems, type StudyItem } from '../data/subjects'
 import { subscribeChildrenOfParent } from '../firebase/links'
 import { subscribeUserDoc, type UserDoc } from '../firebase/users'
-import { addStudyMinutes, subscribeRecordsForDate } from '../firebase/studyRecords'
+import { setStudyMinutes, subscribeRecordsForDate } from '../firebase/studyRecords'
 import { todayString } from '../utils/date'
 import { SubjectCard } from '../components/SubjectCard'
+import { GoalMeterBox } from '../components/GoalMeterBox'
 import type { StudentParentLink, StudyRecord } from '../types'
+
+const MAX_BOX_HEIGHT = 160
+const MIN_BOX_HEIGHT = 56
 
 function useTodayRecords(studentUid: string | null) {
   const [records, setRecords] = useState<StudyRecord[]>([])
@@ -20,7 +25,11 @@ function useTodayRecords(studentUid: string | null) {
   return records
 }
 
-function StudentHome({ studentUid, selectedSubjects }: { studentUid: string; selectedSubjects: UserDoc['selectedSubjects'] }) {
+function StudentHome({ studentUid, selectedSubjects, goals }: {
+  studentUid: string
+  selectedSubjects: UserDoc['selectedSubjects']
+  goals: UserDoc['goals']
+}) {
   const items = useMemo(() => buildStudyItems(selectedSubjects), [selectedSubjects])
   const records = useTodayRecords(studentUid)
   const minutesBySubject = useMemo(() => {
@@ -33,17 +42,48 @@ function StudentHome({ studentUid, selectedSubjects }: { studentUid: string; sel
     return <p className="center-message">설정에서 공부할 과목을 먼저 선택해주세요.</p>
   }
 
+  const goalsByDaily = goals?.daily ?? {}
+  const goaled: { item: StudyItem; goalMinutes: number }[] = []
+  const ungoaled: StudyItem[] = []
+  for (const item of items) {
+    const goalMinutes = goalsByDaily[item.subject] ?? 0
+    if (goalMinutes > 0) {
+      goaled.push({ item, goalMinutes })
+    } else {
+      ungoaled.push(item)
+    }
+  }
+  const maxGoalMinutes = Math.max(1, ...goaled.map((g) => g.goalMinutes))
+
   return (
-    <ul className="card-list">
-      {items.map((item) => (
-        <SubjectCard
-          key={item.subject}
-          label={item.label}
-          minutes={minutesBySubject.get(item.subject) ?? 0}
-          onAddMinutes={(minutes) => addStudyMinutes(studentUid, todayString(), item.subject, item.parentSubject, minutes)}
-        />
-      ))}
-    </ul>
+    <>
+      {goaled.length > 0 && (
+        <div className="meter-row">
+          {goaled.map(({ item, goalMinutes }) => (
+            <GoalMeterBox
+              key={item.subject}
+              label={item.label}
+              minutes={minutesBySubject.get(item.subject) ?? 0}
+              goalMinutes={goalMinutes}
+              heightPx={MIN_BOX_HEIGHT + (goalMinutes / maxGoalMinutes) * (MAX_BOX_HEIGHT - MIN_BOX_HEIGHT)}
+              onCommit={(minutes) => setStudyMinutes(studentUid, todayString(), item.subject, item.parentSubject, minutes)}
+            />
+          ))}
+        </div>
+      )}
+      {ungoaled.length > 0 && (
+        <ul className="card">
+          {ungoaled.map((item) => (
+            <li key={item.subject} className="card-row">
+              <span>{item.label}</span>
+              <Link to="/goals" className="btn btn-secondary btn-sm">
+                목표 설정하기
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }
 
@@ -125,7 +165,7 @@ export function HomePage() {
         <h1>홈</h1>
       </div>
       {userDoc.role === 'student' ? (
-        <StudentHome studentUid={user.uid} selectedSubjects={userDoc.selectedSubjects} />
+        <StudentHome studentUid={user.uid} selectedSubjects={userDoc.selectedSubjects} goals={userDoc.goals} />
       ) : (
         <ParentHome parentUid={user.uid} />
       )}

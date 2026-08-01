@@ -59,9 +59,9 @@ export function ParentConnectPage() {
       </div>
 
       {children.length > 0 && (
-        <ul className="card-list">
+        <ul className="card">
           {children.map((link) => (
-            <li key={link.studentUid} className="card card-row">
+            <li key={link.studentUid} className="card-row">
               연결됨: {link.studentUid}
             </li>
           ))}

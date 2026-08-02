@@ -118,6 +118,8 @@ p {
 .page {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   gap: var(--space-4);
   padding: var(--space-5) 14px;
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
@@ -234,7 +236,7 @@ p {
   flex-direction: column;
   gap: 9px;
   overflow-y: auto;
-  max-height: 60dvh;
+  max-height: 100%;
   padding-bottom: 6px;
 }
 
@@ -604,7 +606,7 @@ p {
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
 }
 
 .app-shell-content {
@@ -674,7 +676,7 @@ p {
   background: var(--color-track);
   border-radius: 8px;
   overflow: hidden;
-  touch-action: none;
+  touch-action: pan-y;
   cursor: pointer;
 }
 

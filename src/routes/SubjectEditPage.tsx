@@ -30,10 +30,15 @@ export function SubjectEditPage() {
           </button>
           <h1>과목 변경</h1>
         </div>
-        <p className="muted">공부할 과목을 추가하거나 제거하세요.</p>
+        <p className="muted page-header-indent">공부할 과목을 추가하거나 제거하세요.</p>
       </div>
 
-      <SubjectPicker value={selected} onChange={setSelected} />
+      <div className="scroll-area">
+        <div className="scroll-area-inner">
+          <SubjectPicker value={selected} onChange={setSelected} />
+        </div>
+        <div className="scroll-fade" />
+      </div>
 
       <button type="button" className="btn btn-primary btn-block" disabled={saving} onClick={handleSave}>
         저장

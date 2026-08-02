@@ -1,7 +1,9 @@
 import { useDragFillValue } from '../hooks/useDragFillValue'
+import type { SubjectColor } from '../data/subjectColors'
 
 interface GoalMeterBoxProps {
   label: string
+  color: SubjectColor
   minutes: number
   priorMinutes: number
   goalMinutes: number
@@ -12,6 +14,7 @@ interface GoalMeterBoxProps {
 
 export function GoalMeterBox({
   label,
+  color,
   minutes,
   priorMinutes,
   goalMinutes,
@@ -32,13 +35,16 @@ export function GoalMeterBox({
   return (
     <div className="meter-content">
       <div className="meter-header-row">
-        <span className="meter-row-label">{label}</span>
+        <span className="meter-row-label">
+          <span className="subject-dot" style={{ background: color.vivid }} />
+          {label}
+        </span>
         {!readOnly && (
           <div className="chip-row">
             <button type="button" className="chip" onClick={() => adjust(-15)}>
               -15분
             </button>
-            <button type="button" className="chip" onClick={() => adjust(15)}>
+            <button type="button" className="chip-solid" style={{ borderColor: color.vivid }} onClick={() => adjust(15)}>
               +15분
             </button>
           </div>
@@ -46,7 +52,7 @@ export function GoalMeterBox({
       </div>
       <div
         ref={trackRef}
-        className={`meter-track${achieved ? ' meter-track--achieved' : ''}`}
+        className="meter-track"
         style={{ width: `${widthPercent}%` }}
         role={readOnly ? undefined : 'slider'}
         tabIndex={readOnly ? -1 : 0}
@@ -57,8 +63,11 @@ export function GoalMeterBox({
         aria-valuetext={readOnly ? undefined : `누적 ${priorMinutes}분 + 오늘 ${todayMinutes}분 / 목표 ${goalMinutes}분`}
         {...(readOnly ? {} : handlers)}
       >
-        <div className="meter-fill-prior" style={{ width: `${priorRatio * 100}%` }} />
-        <div className="meter-fill-today" style={{ left: `${priorRatio * 100}%`, width: `${todayRatio * 100}%` }} />
+        <div className="meter-fill-prior" style={{ width: `${priorRatio * 100}%`, background: color.muted }} />
+        <div
+          className="meter-fill-today"
+          style={{ left: `${priorRatio * 100}%`, width: `${todayRatio * 100}%`, background: color.vivid }}
+        />
         <span className="meter-track-value">
           {display} / {goalMinutes}분
         </span>

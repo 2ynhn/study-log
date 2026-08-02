@@ -7,6 +7,18 @@ interface SubjectPickerProps {
   onChange: (value: SelectedSubjects) => void
 }
 
+function CheckLabel({ checked, onChange, children }: { checked: boolean; onChange: () => void; children: React.ReactNode }) {
+  return (
+    <label>
+      <input type="checkbox" checked={checked} onChange={onChange} className="visually-hidden" />
+      <span className={`check-box${checked ? ' checked' : ''}`} aria-hidden="true">
+        {checked ? '✓' : ''}
+      </span>
+      {children}
+    </label>
+  )
+}
+
 export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
   const [expanded, setExpanded] = useState<string | null>(null)
 
@@ -30,15 +42,14 @@ export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
       {SUBJECT_GROUPS.map((group) => (
         <li key={group.name} className="card">
           <div className="check-row">
-            <label>
-              <input
-                type="checkbox"
-                checked={value.대표과목.includes(group.name)}
-                onChange={() => toggleGroup(group.name)}
-              />
+            <CheckLabel checked={value.대표과목.includes(group.name)} onChange={() => toggleGroup(group.name)}>
               {group.name}
-            </label>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setExpanded(expanded === group.name ? null : group.name)}>
+            </CheckLabel>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => setExpanded(expanded === group.name ? null : group.name)}
+            >
               {expanded === group.name ? '접기' : '상세 선택'}
             </button>
           </div>
@@ -46,14 +57,12 @@ export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
             <ul className="detail-list">
               {group.detail.map((detail) => (
                 <li key={detail} className="check-row">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={value.상세과목.includes(detail)}
-                      onChange={() => toggleDetail(group.name, detail)}
-                    />
+                  <CheckLabel
+                    checked={value.상세과목.includes(detail)}
+                    onChange={() => toggleDetail(group.name, detail)}
+                  >
                     {detail}
-                  </label>
+                  </CheckLabel>
                 </li>
               ))}
             </ul>

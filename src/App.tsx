@@ -3,6 +3,7 @@ import type { User } from 'firebase/auth'
 import { useAuth } from './auth/AuthContext'
 import type { UserDoc } from './firebase/users'
 import { AppShell } from './components/AppShell'
+import { Splash } from './components/Splash'
 import { LoginPage } from './routes/LoginPage'
 import { RoleSelectPage } from './routes/RoleSelectPage'
 import { SubjectSetupPage } from './routes/SubjectSetupPage'
@@ -56,7 +57,7 @@ function App() {
   const location = useLocation()
 
   if (loading) {
-    return <p className="center-message">로딩 중...</p>
+    return <Splash />
   }
 
   const redirect = resolveRedirect(location.pathname, user, userDoc)

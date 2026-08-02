@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { buildStudyItems, type StudyItem } from '../data/subjects'
+import { subjectColorFor } from '../data/subjectColors'
 import { subscribeChildrenOfParent } from '../firebase/links'
 import { subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { subscribeRecordsForRange } from '../firebase/studyRecords'
@@ -34,33 +35,28 @@ function useChartData(studentUid: string | null, items: StudyItem[], goalsForWee
     }
     return items.map((item) => ({
       name: item.label,
+      color: subjectColorFor(item.parentSubject).vivid,
       실제: totals.get(item.subject) ?? 0,
       목표: goalsForWeek[item.subject] ?? 0,
     }))
   }, [items, records, goalsForWeek])
 }
 
-function StatsTable({ data }: { data: StatsBarChartDatum[] }) {
+function StatsRows({ data }: { data: StatsBarChartDatum[] }) {
   return (
-    <table className="data-table">
-      <caption>과목별 실제/목표 공부 시간(분)</caption>
-      <thead>
-        <tr>
-          <th scope="col">과목</th>
-          <th scope="col">실제</th>
-          <th scope="col">목표</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row) => (
-          <tr key={row.name}>
-            <th scope="row">{row.name}</th>
-            <td>{row.실제}분</td>
-            <td>{row.목표}분</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <ul className="stats-rows">
+      {data.map((row) => (
+        <li key={row.name} className="stats-row">
+          <span className="stats-row-label">
+            <span className="subject-dot" style={{ background: row.color }} />
+            {row.name}
+          </span>
+          <span className="stats-row-value">
+            {row.실제}분 / {row.목표}분
+          </span>
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -82,7 +78,17 @@ function StatsView({ studentUid, selectedSubjects, goals, weekStart, weekEnd }: 
   return (
     <div className="card">
       <StatsBarChart data={data} />
-      <StatsTable data={data} />
+      <div className="stats-legend">
+        <span className="stats-legend-item">
+          <span className="stats-legend-swatch" />
+          실제(색상)
+        </span>
+        <span className="stats-legend-item">
+          <span className="stats-legend-swatch stats-legend-swatch--outline" />
+          목표
+        </span>
+      </div>
+      <StatsRows data={data} />
     </div>
   )
 }
@@ -128,7 +134,9 @@ export function StatsPage() {
   return (
     <section className="page">
       <div className="page-header">
-        <h1>통계</h1>
+        <h1 className="wavy" style={{ textDecorationColor: '#94d7d2' }}>
+          통계
+        </h1>
       </div>
 
       <DateNav

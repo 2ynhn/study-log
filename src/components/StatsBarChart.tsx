@@ -1,46 +1,52 @@
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 export interface StatsBarChartDatum {
   name: string
+  color: string
   실제: number
   목표: number
 }
 
 export function StatsBarChart({ data }: { data: StatsBarChartDatum[] }) {
-  const width = Math.max(data.length * 96, 320)
+  const width = Math.max(data.length * 72, 280)
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <div style={{ width, height: 260 }}>
+      <div style={{ width, height: 170 }}>
         <ResponsiveContainer>
-          <BarChart data={data} barCategoryGap={16} barGap={2}>
-            <CartesianGrid vertical={false} stroke="var(--chart-gridline)" />
+          <BarChart data={data} barCategoryGap={14} barGap={3}>
             <XAxis
               dataKey="name"
-              tick={{ fill: 'var(--chart-ink-muted)', fontSize: 12 }}
-              axisLine={{ stroke: 'var(--chart-baseline)' }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: 'var(--chart-ink-muted)', fontSize: 12 }}
+              tick={{ fill: 'var(--color-text-muted)', fontSize: 9.5, fontWeight: 600 }}
               axisLine={false}
               tickLine={false}
-              width={36}
-              allowDecimals={false}
             />
+            <YAxis hide />
             <Tooltip
-              cursor={{ fill: 'var(--chart-gridline)' }}
+              cursor={{ fill: 'var(--color-track)' }}
               contentStyle={{
-                background: 'var(--chart-surface)',
-                border: '1px solid var(--chart-gridline)',
+                background: 'var(--color-surface)',
+                border: '1.5px dashed var(--color-border)',
                 borderRadius: 8,
-                color: 'var(--chart-ink-primary)',
-                fontSize: 13,
+                color: 'var(--color-text)',
+                fontSize: 12,
               }}
             />
-            <Legend wrapperStyle={{ fontSize: 12, color: 'var(--chart-ink-secondary)' }} />
-            <Bar dataKey="실제" fill="var(--chart-series-actual)" radius={[4, 4, 0, 0]} maxBarSize={24} isAnimationActive={false} />
-            <Bar dataKey="목표" fill="var(--chart-series-goal)" radius={[4, 4, 0, 0]} maxBarSize={24} isAnimationActive={false} />
+            <Bar dataKey="실제" radius={[2, 2, 0, 0]} maxBarSize={9} isAnimationActive={false}>
+              {data.map((entry) => (
+                <Cell key={entry.name} fill={entry.color} />
+              ))}
+            </Bar>
+            <Bar
+              dataKey="목표"
+              fill="none"
+              stroke="rgba(60,50,40,.3)"
+              strokeWidth={1.5}
+              strokeDasharray="3 2"
+              radius={[2, 2, 0, 0]}
+              maxBarSize={9}
+              isAnimationActive={false}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

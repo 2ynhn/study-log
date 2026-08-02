@@ -9,30 +9,32 @@ export function SettingsPage() {
   return (
     <section className="page">
       <div className="page-header">
-        <h1>설정</h1>
+        <h1 className="wavy" style={{ textDecorationColor: '#f0a99f' }}>
+          설정
+        </h1>
       </div>
 
       <ul className="card">
         {userDoc?.role === 'student' ? (
           <>
             <li className="card-row">
-              <span>공부할 과목 변경</span>
-              <Link to="/settings/subjects" className="btn btn-secondary btn-sm">
-                변경
+              <Link to="/settings/subjects" className="settings-row-link">
+                <span>공부할 과목 변경</span>
+                <span className="settings-row-chevron">›</span>
               </Link>
             </li>
             <li className="card-row">
-              <span>연결된 학부모 관리</span>
-              <Link to="/settings/parents" className="btn btn-secondary btn-sm">
-                관리
+              <Link to="/settings/parents" className="settings-row-link">
+                <span>연결된 학부모 관리</span>
+                <span className="settings-row-chevron">›</span>
               </Link>
             </li>
           </>
         ) : (
           <li className="card-row">
-            <span>자녀 관리</span>
-            <Link to="/family" className="btn btn-secondary btn-sm">
-              관리
+            <Link to="/family" className="settings-row-link">
+              <span>자녀 관리</span>
+              <span className="settings-row-chevron">›</span>
             </Link>
           </li>
         )}

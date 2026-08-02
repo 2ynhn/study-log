@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { buildStudyItems, type StudyItem } from '../data/subjects'
+import { subjectColorFor } from '../data/subjectColors'
 import { subscribeChildrenOfParent } from '../firebase/links'
 import { subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { setStudyMinutes, subscribeRecordsForRange } from '../firebase/studyRecords'
@@ -98,28 +99,32 @@ function StudentHome({ studentUid, selectedSubjects, goals }: {
     <>
       {dateNav}
       {goaled.length > 0 && (
-        <ul className="card-list">
-          {goaled.map(({ item, goalMinutes }) => {
-            const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
-            const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
-            const otherDaysTotal = weekTotal - dayMinutes
-            return (
-              <li key={item.subject} className="card">
-                <GoalMeterBox
-                  label={item.label}
-                  minutes={weekTotal}
-                  priorMinutes={otherDaysTotal}
-                  goalMinutes={goalMinutes}
-                  widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
-                  onCommit={(newWeekTotal) => {
-                    const newDayMinutes = Math.max(0, newWeekTotal - otherDaysTotal)
-                    setStudyMinutes(studentUid, selectedDate, item.subject, item.parentSubject, newDayMinutes)
-                  }}
-                />
-              </li>
-            )
-          })}
-        </ul>
+        <div className="scroll-area">
+          <ul className="scroll-area-inner">
+            {goaled.map(({ item, goalMinutes }) => {
+              const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
+              const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
+              const otherDaysTotal = weekTotal - dayMinutes
+              return (
+                <li key={item.subject} className="card">
+                  <GoalMeterBox
+                    label={item.label}
+                    color={subjectColorFor(item.parentSubject)}
+                    minutes={weekTotal}
+                    priorMinutes={otherDaysTotal}
+                    goalMinutes={goalMinutes}
+                    widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
+                    onCommit={(newWeekTotal) => {
+                      const newDayMinutes = Math.max(0, newWeekTotal - otherDaysTotal)
+                      setStudyMinutes(studentUid, selectedDate, item.subject, item.parentSubject, newDayMinutes)
+                    }}
+                  />
+                </li>
+              )
+            })}
+          </ul>
+          <div className="scroll-fade" />
+        </div>
       )}
       {ungoaled.length > 0 && (
         <ul className="card">
@@ -219,24 +224,28 @@ function ParentHome({ parentUid }: { parentUid: string }) {
       ) : (
         <>
           {goaled.length > 0 && (
-            <ul className="card-list">
-              {goaled.map(({ item, goalMinutes }) => {
-                const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
-                const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
-                return (
-                  <li key={item.subject} className="card">
-                    <GoalMeterBox
-                      label={item.label}
-                      minutes={weekTotal}
-                      priorMinutes={weekTotal - dayMinutes}
-                      goalMinutes={goalMinutes}
-                      widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
-                      readOnly
-                    />
-                  </li>
-                )
-              })}
-            </ul>
+            <div className="scroll-area">
+              <ul className="scroll-area-inner">
+                {goaled.map(({ item, goalMinutes }) => {
+                  const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
+                  const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
+                  return (
+                    <li key={item.subject} className="card">
+                      <GoalMeterBox
+                        label={item.label}
+                        color={subjectColorFor(item.parentSubject)}
+                        minutes={weekTotal}
+                        priorMinutes={weekTotal - dayMinutes}
+                        goalMinutes={goalMinutes}
+                        widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
+                        readOnly
+                      />
+                    </li>
+                  )
+                })}
+              </ul>
+              <div className="scroll-fade" />
+            </div>
           )}
           {ungoaled.length > 0 && (
             <ul className="card">

@@ -33,3 +33,10 @@ export interface StudyRecord {
   minutes: number
   updatedAt: number
 }
+
+export interface CheerMessage {
+  text: string
+  fromParentUid: string
+  createdAt: number
+  read: boolean
+}

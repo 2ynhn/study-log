@@ -1,6 +1,6 @@
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import { db } from './config'
-import type { SchoolLevel, SelectedSubjects, UserGoals, UserRole } from '../types'
+import type { CheerMessage, SchoolLevel, SelectedSubjects, UserGoals, UserRole } from '../types'
 
 export interface UserDoc {
   uid: string
@@ -9,6 +9,7 @@ export interface UserDoc {
   schoolLevel?: SchoolLevel
   selectedSubjects?: SelectedSubjects
   goals?: UserGoals
+  cheerMessage?: CheerMessage
 }
 
 export function subscribeUserDoc(uid: string, onChange: (user: UserDoc | null) => void) {

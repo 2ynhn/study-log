@@ -11,7 +11,7 @@ import { DateNav } from '../components/DateNav'
 import { GoalMeterBox } from '../components/GoalMeterBox'
 import type { StudentParentLink, StudyRecord } from '../types'
 
-const MIN_WIDTH_PERCENT = 25
+const MIN_WIDTH_PERCENT = 55
 const MAX_WIDTH_PERCENT = 100
 
 function useWeekRecords(studentUid: string | null, selectedDate: string) {

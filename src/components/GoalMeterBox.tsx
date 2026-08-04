@@ -1,5 +1,6 @@
 import { useDragFillValue } from '../hooks/useDragFillValue'
 import type { SubjectColor } from '../data/subjectColors'
+import { formatMinutes } from '../utils/time'
 
 interface GoalMeterBoxProps {
   label: string
@@ -60,7 +61,11 @@ export function GoalMeterBox({
         aria-valuemin={readOnly ? undefined : 0}
         aria-valuemax={readOnly ? undefined : goalMinutes}
         aria-valuenow={readOnly ? undefined : display}
-        aria-valuetext={readOnly ? undefined : `누적 ${priorMinutes}분 + 오늘 ${todayMinutes}분 / 목표 ${goalMinutes}분`}
+        aria-valuetext={
+          readOnly
+            ? undefined
+            : `누적 ${formatMinutes(priorMinutes)} + 오늘 ${formatMinutes(todayMinutes)} / 목표 ${formatMinutes(goalMinutes)}`
+        }
         {...(readOnly ? {} : handlers)}
       >
         <div className="meter-fill-prior" style={{ width: `${priorRatio * 100}%`, background: color.muted }} />
@@ -69,7 +74,7 @@ export function GoalMeterBox({
           style={{ left: `${priorRatio * 100}%`, width: `${todayRatio * 100}%`, background: color.vivid }}
         />
         <span className="meter-track-value">
-          {display} / {goalMinutes}분
+          {formatMinutes(display)} / {formatMinutes(goalMinutes)}
         </span>
         {achieved && (
           <span className="meter-badge" aria-hidden="true">

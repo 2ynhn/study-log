@@ -1,11 +1,12 @@
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import { db } from './config'
-import type { SelectedSubjects, UserGoals, UserRole } from '../types'
+import type { SchoolLevel, SelectedSubjects, UserGoals, UserRole } from '../types'
 
 export interface UserDoc {
   uid: string
   role: UserRole | null
   onboardingComplete: boolean
+  schoolLevel?: SchoolLevel
   selectedSubjects?: SelectedSubjects
   goals?: UserGoals
 }
@@ -30,6 +31,10 @@ export async function setUserRole(uid: string, role: UserRole) {
 
 export async function setSelectedSubjects(uid: string, selectedSubjects: SelectedSubjects) {
   await setDoc(doc(db, 'users', uid), { selectedSubjects }, { merge: true })
+}
+
+export async function setSchoolLevel(uid: string, schoolLevel: SchoolLevel) {
+  await setDoc(doc(db, 'users', uid), { schoolLevel }, { merge: true })
 }
 
 export async function completeOnboarding(uid: string) {

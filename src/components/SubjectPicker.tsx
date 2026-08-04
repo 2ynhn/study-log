@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { SUBJECT_GROUPS } from '../data/subjects'
+import type { SubjectGroup } from '../data/subjects'
 import type { SelectedSubjects } from '../types'
 
 interface SubjectPickerProps {
   value: SelectedSubjects
   onChange: (value: SelectedSubjects) => void
+  groups: SubjectGroup[]
 }
 
 function CheckLabel({ checked, onChange, children }: { checked: boolean; onChange: () => void; children: React.ReactNode }) {
@@ -19,13 +20,13 @@ function CheckLabel({ checked, onChange, children }: { checked: boolean; onChang
   )
 }
 
-export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
+export function SubjectPicker({ value, onChange, groups }: SubjectPickerProps) {
   const [expanded, setExpanded] = useState<string | null>(null)
 
   function toggleGroup(name: string) {
     const has = value.대표과목.includes(name)
     const 대표과목 = has ? value.대표과목.filter((n) => n !== name) : [...value.대표과목, name]
-    const group = SUBJECT_GROUPS.find((g) => g.name === name)
+    const group = groups.find((g) => g.name === name)
     const 상세과목 = has && group ? value.상세과목.filter((d) => !group.detail.includes(d)) : value.상세과목
     onChange({ 대표과목, 상세과목 })
   }
@@ -39,7 +40,7 @@ export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
 
   return (
     <ul className="card-list">
-      {SUBJECT_GROUPS.map((group) => (
+      {groups.map((group) => (
         <li key={group.name} className="card">
           <div className="check-row">
             <CheckLabel checked={value.대표과목.includes(group.name)} onChange={() => toggleGroup(group.name)}>

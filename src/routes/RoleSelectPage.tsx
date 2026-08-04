@@ -21,12 +21,18 @@ export function RoleSelectPage() {
         <p className="muted">학생 / 학부모 중 하나를 선택하세요.</p>
       </div>
       <div className="form">
-        <button type="button" className="btn btn-primary btn-block" disabled={submitting} onClick={() => selectRole('student')}>
-          학생이에요
-        </button>
-        <button type="button" className="btn btn-secondary btn-block" disabled={submitting} onClick={() => selectRole('parent')}>
-          학부모예요
-        </button>
+        <div className="role-option">
+          <button type="button" className="btn btn-primary btn-block" disabled={submitting} onClick={() => selectRole('student')}>
+            학생이에요
+          </button>
+          <p className="muted role-option-desc">매일 과목 별 공부시간을 기입할 수 있어요.</p>
+        </div>
+        <div className="role-option">
+          <button type="button" className="btn btn-secondary btn-block" disabled={submitting} onClick={() => selectRole('parent')}>
+            학부모예요
+          </button>
+          <p className="muted role-option-desc">공유코드를 등록하면 학생의 공부시간을 함께 볼 수 있어요.</p>
+        </div>
       </div>
     </section>
   )

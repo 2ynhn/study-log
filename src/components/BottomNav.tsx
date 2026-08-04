@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthContext'
 
 function HomeIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18">
+    <svg width="20" height="20" viewBox="0 0 18 18">
       <polygon points="9,2 16,8 2,8" fill="currentColor" />
       <rect x="4" y="8" width="10" height="8" fill="currentColor" />
     </svg>
@@ -12,7 +12,7 @@ function HomeIcon() {
 
 function StatsIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18">
+    <svg width="20" height="20" viewBox="0 0 18 18">
       <rect x="2" y="9" width="3" height="7" fill="currentColor" />
       <rect x="7.5" y="5" width="3" height="11" fill="currentColor" />
       <rect x="13" y="2" width="3" height="14" fill="currentColor" />
@@ -22,7 +22,7 @@ function StatsIcon() {
 
 function GoalsIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18">
+    <svg width="20" height="20" viewBox="0 0 18 18">
       <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
       <circle cx="9" cy="9" r="2.5" fill="currentColor" />
     </svg>
@@ -31,7 +31,7 @@ function GoalsIcon() {
 
 function SettingsIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18">
+    <svg width="20" height="20" viewBox="0 0 18 18">
       <line x1="2" y1="5" x2="16" y2="5" stroke="currentColor" strokeWidth="2" />
       <circle cx="11" cy="5" r="2" fill="var(--color-bg)" stroke="currentColor" strokeWidth="1.5" />
       <line x1="2" y1="13" x2="16" y2="13" stroke="currentColor" strokeWidth="2" />

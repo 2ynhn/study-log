@@ -1,4 +1,5 @@
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { formatMinutes } from '../utils/time'
 
 export interface StatsBarChartDatum {
   name: string
@@ -8,28 +9,29 @@ export interface StatsBarChartDatum {
 }
 
 export function StatsBarChart({ data }: { data: StatsBarChartDatum[] }) {
-  const width = Math.max(data.length * 72, 280)
+  const width = Math.max(data.length * 100, 320)
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <div style={{ width, height: 170 }}>
+      <div style={{ width, height: 190 }}>
         <ResponsiveContainer>
           <BarChart data={data} barCategoryGap={14} barGap={3}>
             <XAxis
               dataKey="name"
-              tick={{ fill: 'var(--color-text-muted)', fontSize: 9.5, fontWeight: 600 }}
+              tick={{ fill: 'var(--color-text-muted)', fontSize: 16, fontWeight: 600 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis hide />
             <Tooltip
               cursor={{ fill: 'var(--color-track)' }}
+              formatter={(value) => formatMinutes(Number(value))}
               contentStyle={{
                 background: 'var(--color-surface)',
                 border: '1.5px dashed var(--color-border)',
                 borderRadius: 8,
                 color: 'var(--color-text)',
-                fontSize: 12,
+                fontSize: 16,
               }}
             />
             <Bar dataKey="실제" radius={[2, 2, 0, 0]} maxBarSize={9} isAnimationActive={false}>

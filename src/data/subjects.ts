@@ -1,11 +1,28 @@
-import type { SelectedSubjects } from '../types'
+import type { SchoolLevel, SelectedSubjects } from '../types'
 
 export interface SubjectGroup {
   name: string
   detail: string[]
 }
 
-export const SUBJECT_GROUPS: SubjectGroup[] = [
+export const MIDDLE_SCHOOL_SUBJECT_GROUPS: SubjectGroup[] = [
+  { name: '국어', detail: [] },
+  { name: '사회', detail: ['지리', '일반사회'] },
+  { name: '역사', detail: ['역사①(세계사)', '역사②(한국사)'] },
+  { name: '도덕', detail: [] },
+  { name: '수학', detail: [] },
+  { name: '과학', detail: [] },
+  { name: '기술·가정', detail: ['기술', '가정'] },
+  { name: '정보', detail: [] },
+  { name: '체육', detail: [] },
+  { name: '음악', detail: [] },
+  { name: '미술', detail: [] },
+  { name: '영어', detail: [] },
+  { name: '한문', detail: [] },
+  { name: '진로와 직업', detail: [] },
+]
+
+export const HIGH_SCHOOL_SUBJECT_GROUPS: SubjectGroup[] = [
   {
     name: '국어',
     detail: ['화법과 언어', '독서와 작문', '문학', '주제 탐구 독서', '문학과 영상', '매체 의사소통'],
@@ -85,17 +102,25 @@ export const SUBJECT_GROUPS: SubjectGroup[] = [
   },
 ]
 
+export function subjectGroupsForLevel(level: SchoolLevel | null | undefined): SubjectGroup[] {
+  return level === 'middle' ? MIDDLE_SCHOOL_SUBJECT_GROUPS : HIGH_SCHOOL_SUBJECT_GROUPS
+}
+
+// 학교급 변경 후에도 과거에 선택했던 과목(다른 학교급 전용 과목 포함)의 이름을
+// 항상 정상적으로 해석할 수 있도록, 통계·홈·목표 화면에서는 두 학교급을 합친 목록을 사용한다.
+const ALL_SUBJECT_GROUPS: SubjectGroup[] = [...HIGH_SCHOOL_SUBJECT_GROUPS, ...MIDDLE_SCHOOL_SUBJECT_GROUPS]
+
 export interface StudyItem {
   subject: string
   parentSubject: string
   label: string
 }
 
-export function buildStudyItems(selected: SelectedSubjects | undefined): StudyItem[] {
+export function buildStudyItems(selected: SelectedSubjects | undefined, groups: SubjectGroup[] = ALL_SUBJECT_GROUPS): StudyItem[] {
   if (!selected) return []
   const items: StudyItem[] = []
   for (const groupName of selected.대표과목) {
-    const group = SUBJECT_GROUPS.find((g) => g.name === groupName)
+    const group = groups.find((g) => g.name === groupName)
     const details = group ? selected.상세과목.filter((d) => group.detail.includes(d)) : []
     if (details.length === 0) {
       items.push({ subject: groupName, parentSubject: groupName, label: groupName })

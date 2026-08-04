@@ -53,7 +53,7 @@ export function LoginPage() {
     <section className="auth-page">
       <div className="page-header">
         <h1>{mode === 'login' ? '로그인' : '계정 만들기'}</h1>
-        <p className="muted">공부시간 트래커에 오신 걸 환영해요.</p>
+        <p className="muted">과목 별 공부 시간을 체크해서 자기주도 학습을 유지해 보세요</p>
       </div>
       <form className="form" onSubmit={handleSubmit}>
         <div className="field">
@@ -88,6 +88,10 @@ export function LoginPage() {
       <button type="button" className="btn btn-ghost" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
         {mode === 'login' ? '계정이 없으신가요? 가입하기' : '이미 계정이 있으신가요? 로그인'}
       </button>
+      {mode === 'signup' && <p className="muted footnote">학생과 학부모 모두 각각 계정을 만들어야 합니다.</p>}
+      <p className="muted footnote">
+        아이디는 로그인 용도로만 사용되며 실제 이메일 주소가 아니어도 괜찮아요. 비밀번호는 안전하게 암호화되어 저장되며, 운영자를 포함한 누구도 원문을 확인할 수 없어요.
+      </p>
     </section>
   )
 }

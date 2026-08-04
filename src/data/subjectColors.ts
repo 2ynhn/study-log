@@ -18,6 +18,16 @@ export const SUBJECT_COLORS: Record<string, SubjectColor> = {
   '기술·가정/정보': { vivid: '#9fb5c9', muted: '#e3eaf1' },
   '제2외국어/한문': { vivid: '#c9a876', muted: '#ede2cc' },
   교양: { vivid: '#b3c17a', muted: '#e6ecd4' },
+
+  // 중학교 전용 과목 (2022 개정 교육과정 중학교 편제 — 고교 과목과 이름이 다른 것들)
+  역사: { vivid: '#94d7d2', muted: '#d2f0ee' }, // 한국사와 동일 계열
+  도덕: { vivid: '#a8b989', muted: '#e4ecd8' },
+  '기술·가정': { vivid: '#9fb5c9', muted: '#e3eaf1' }, // 기술·가정/정보와 동일 계열
+  정보: { vivid: '#7fa0c4', muted: '#d7e3f0' },
+  음악: { vivid: '#d9a0d4', muted: '#f3e0f2' }, // 예술과 동일 계열
+  미술: { vivid: '#cf8fc9', muted: '#f0d9ee' },
+  한문: { vivid: '#c9a876', muted: '#ede2cc' }, // 제2외국어/한문과 동일 계열
+  '진로와 직업': { vivid: '#b3c17a', muted: '#e6ecd4' }, // 교양과 동일 계열
 }
 
 const FALLBACK_COLOR: SubjectColor = { vivid: '#b7b0a6', muted: '#e5e2dc' }

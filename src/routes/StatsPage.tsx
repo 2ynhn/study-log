@@ -15,6 +15,7 @@ import {
 } from '../utils/date'
 import { DateNav } from '../components/DateNav'
 import { StatsBarChart, type StatsBarChartDatum } from '../components/StatsBarChart'
+import { formatMinutes } from '../utils/time'
 import type { StudentParentLink, StudyRecord, SubjectGoals } from '../types'
 
 function useChartData(studentUid: string | null, items: StudyItem[], goalsForWeek: SubjectGoals, weekStart: string, weekEnd: string) {
@@ -52,7 +53,7 @@ function StatsRows({ data }: { data: StatsBarChartDatum[] }) {
             {row.name}
           </span>
           <span className="stats-row-value">
-            {row.실제}분 / {row.목표}분
+            {formatMinutes(row.실제)} / {formatMinutes(row.목표)}
           </span>
         </li>
       ))}

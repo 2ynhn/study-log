@@ -1,4 +1,5 @@
 export type UserRole = 'student' | 'parent'
+export type SchoolLevel = 'middle' | 'high'
 
 export interface SelectedSubjects {
   대표과목: string[]

@@ -1,5 +1,6 @@
 import { useDragFillValue } from '../hooks/useDragFillValue'
 import type { SubjectColor } from '../data/subjectColors'
+import { formatMinutes } from '../utils/time'
 
 interface GoalDragBarProps {
   label: string
@@ -44,11 +45,11 @@ export function GoalDragBar({ label, color, minutes, cap, onCommit }: GoalDragBa
         aria-valuemin={0}
         aria-valuemax={cap}
         aria-valuenow={display}
-        aria-valuetext={`목표 ${display}분`}
+        aria-valuetext={`목표 ${formatMinutes(display)}`}
         {...handlers}
       >
         <div className="meter-fill-h" style={{ width: `${fillRatio * 100}%`, background: color.vivid }} />
-        <span className="meter-track-value">{display}분</span>
+        <span className="meter-track-value">{formatMinutes(display)}</span>
       </div>
     </div>
   )

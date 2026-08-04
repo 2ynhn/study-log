@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
-import { completeOnboarding, setSelectedSubjects } from '../firebase/users'
+import { completeOnboarding, setSchoolLevel, setSelectedSubjects } from '../firebase/users'
 import { generateInviteCode } from '../firebase/inviteCodes'
 import { SubjectPicker } from '../components/SubjectPicker'
-import type { SelectedSubjects } from '../types'
+import { subjectGroupsForLevel } from '../data/subjects'
+import type { SchoolLevel, SelectedSubjects } from '../types'
 
 export function SubjectSetupPage() {
   const { user, userDoc } = useAuth()
+  const [level, setLevel] = useState<SchoolLevel | null>(userDoc?.schoolLevel ?? null)
   const [selected, setSelected] = useState<SelectedSubjects>(
     userDoc?.selectedSubjects ?? { 대표과목: [], 상세과목: [] },
   )
@@ -23,8 +25,9 @@ export function SubjectSetupPage() {
   }
 
   async function handleComplete() {
-    if (!user) return
+    if (!user || !level) return
     setSaving(true)
+    await setSchoolLevel(user.uid, level)
     await setSelectedSubjects(user.uid, selected)
     await completeOnboarding(user.uid)
     setSaving(false)
@@ -34,10 +37,19 @@ export function SubjectSetupPage() {
     <section className="page">
       <div className="page-header">
         <h1>공부할 과목 선택</h1>
-        <p className="muted">대표과목을 선택하고, 필요하면 펼쳐서 상세과목을 선택하세요.</p>
+        <p className="muted">학교급을 먼저 선택하고, 대표과목을 선택한 뒤 필요하면 펼쳐서 상세과목을 선택하세요.</p>
       </div>
 
-      <SubjectPicker value={selected} onChange={setSelected} />
+      <div className="tabs">
+        <button type="button" className="tab" aria-selected={level === 'middle'} onClick={() => setLevel('middle')}>
+          중학생
+        </button>
+        <button type="button" className="tab" aria-selected={level === 'high'} onClick={() => setLevel('high')}>
+          고등학생
+        </button>
+      </div>
+
+      {level && <SubjectPicker value={selected} onChange={setSelected} groups={subjectGroupsForLevel(level)} />}
 
       <div className="card">
         <h2>학부모 초대코드</h2>
@@ -48,7 +60,7 @@ export function SubjectSetupPage() {
         {inviteCode && <p>초대코드: <strong>{inviteCode}</strong></p>}
       </div>
 
-      <button type="button" className="btn btn-primary btn-block" disabled={saving} onClick={handleComplete}>
+      <button type="button" className="btn btn-primary btn-block" disabled={saving || !level} onClick={handleComplete}>
         완료
       </button>
     </section>

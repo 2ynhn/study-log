@@ -10,6 +10,7 @@ import { markCheerMessageRead, sendCheerMessage } from '../firebase/cheerMessage
 import { addDaysToString, endOfWeekString, formatDateLabel, formatIsoWeekLabel, startOfWeekString, todayString } from '../utils/date'
 import { DateNav } from '../components/DateNav'
 import { GoalMeterBox } from '../components/GoalMeterBox'
+import { InstallBanner } from '../components/InstallBanner'
 import { Modal } from '../components/Modal'
 import type { StudentParentLink, StudyRecord } from '../types'
 
@@ -357,6 +358,7 @@ export function HomePage() {
 
   return (
     <section className="page">
+      <InstallBanner />
       {userDoc.role === 'student' ? (
         <StudentHome
           studentUid={user.uid}

@@ -47,6 +47,18 @@ service cloud.firestore {
       allow list: if isSignedIn();
     }
 
+    // 아이디 로그인을 유지하면서 실제 이메일 계정을 쓰기 위한 아이디 -> 이메일 매핑.
+    // 로그인/비밀번호 찾기 시 로그인 전 상태에서 조회해야 하므로 get은 누구나 허용하되,
+    // list는 막아 전체 아이디 목록을 긁어갈 수 없게 한다. 본인 명의로만 1회 생성 가능, 이후 불변.
+    match /usernames/{loginId} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.email == request.auth.token.email;
+      allow update, delete: if false;
+    }
+
     match /links/{linkId} {
       allow read: if isSignedIn() &&
         (resource.data.studentUid == request.auth.uid || resource.data.parentUid == request.auth.uid);

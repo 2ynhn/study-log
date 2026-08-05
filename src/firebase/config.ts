@@ -36,9 +36,3 @@ if (useEmulator) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
   connectFirestoreEmulator(db, '127.0.0.1', 8080)
 }
-
-const AUTH_EMAIL_DOMAIN = 'study-log.local'
-
-export function toInternalEmail(loginId: string): string {
-  return `${loginId}@${AUTH_EMAIL_DOMAIN}`
-}

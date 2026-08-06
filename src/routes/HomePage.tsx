@@ -7,7 +7,15 @@ import { subscribeChildrenOfParent } from '../firebase/links'
 import { markHasEverLogged, subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { setStudyMinutes, subscribeRecordsForRange } from '../firebase/studyRecords'
 import { markCheerMessageRead, sendCheerMessage } from '../firebase/cheerMessages'
-import { addDaysToString, endOfWeekString, formatDateLabel, formatIsoWeekLabel, startOfWeekString, todayString } from '../utils/date'
+import {
+  addDaysToString,
+  endOfWeekString,
+  formatDateLabel,
+  formatIsoWeekLabel,
+  startOfWeekString,
+  todayString,
+  weekDatesFor,
+} from '../utils/date'
 import { computeStreak } from '../utils/streak'
 import { detectHomeCommitCelebration } from '../utils/celebrationRules'
 import { DateNav } from '../components/DateNav'
@@ -18,8 +26,6 @@ import { CelebrationView } from '../components/Celebration'
 import { useCelebration } from '../hooks/useCelebration'
 import type { StudentParentLink, StudyRecord } from '../types'
 
-const MIN_WIDTH_PERCENT = 55
-const MAX_WIDTH_PERCENT = 100
 const STREAK_WINDOW_DAYS = 45
 const STREAK_MILESTONES = [7, 30]
 
@@ -133,6 +139,17 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEve
     return map
   }, [records, selectedDate])
 
+  const dayMinutesBySubject = useMemo(() => {
+    const map = new Map<string, Record<string, number>>()
+    for (const record of records) {
+      if (!map.has(record.subject)) map.set(record.subject, {})
+      map.get(record.subject)![record.date] = record.minutes
+    }
+    return map
+  }, [records])
+
+  const weekDates = useMemo(() => weekDatesFor(selectedDate), [selectedDate])
+
   const dateNav = (
     <DateNav
       label={formatDateLabel(selectedDate)}
@@ -169,17 +186,14 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEve
       ungoaled.push(item)
     }
   }
-  const maxGoalMinutes = Math.max(1, ...goaled.map((g) => g.goalMinutes))
-
   function handleGoalCommit(
     item: StudyItem,
     goalMinutes: number,
     weekTotal: number,
-    otherDaysTotal: number,
     dayMinutes: number,
-    newWeekTotal: number,
+    newDayMinutes: number,
   ) {
-    const newDayMinutes = Math.max(0, newWeekTotal - otherDaysTotal)
+    const newWeekTotal = weekTotal - dayMinutes + newDayMinutes
     setStudyMinutes(studentUid, selectedDate, item.subject, item.parentSubject, newDayMinutes)
 
     const totalWeekBefore = goaled.reduce((sum, g) => sum + (weekTotalsBySubject.get(g.item.subject) ?? 0), 0)
@@ -221,19 +235,17 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEve
             {goaled.map(({ item, goalMinutes }) => {
               const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
               const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
-              const otherDaysTotal = weekTotal - dayMinutes
               return (
                 <li key={item.subject} className="card">
                   <GoalMeterBox
                     label={item.label}
                     color={subjectColorFor(item.parentSubject)}
-                    minutes={weekTotal}
-                    priorMinutes={otherDaysTotal}
+                    weekDates={weekDates}
+                    dayMinutes={dayMinutesBySubject.get(item.subject) ?? {}}
+                    selectedDate={selectedDate}
+                    todayDate={todayString()}
                     goalMinutes={goalMinutes}
-                    widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
-                    onCommit={(newWeekTotal) =>
-                      handleGoalCommit(item, goalMinutes, weekTotal, otherDaysTotal, dayMinutes, newWeekTotal)
-                    }
+                    onCommit={(newDayMinutes) => handleGoalCommit(item, goalMinutes, weekTotal, dayMinutes, newDayMinutes)}
                   />
                 </li>
               )
@@ -300,18 +312,15 @@ function ParentHome({ parentUid }: { parentUid: string }) {
 
   const items = useMemo(() => buildStudyItems(childDoc?.selectedSubjects), [childDoc])
   const records = useWeekRecords(activeChildUid, selectedDate)
-  const weekTotalsBySubject = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const record of records) map.set(record.subject, (map.get(record.subject) ?? 0) + record.minutes)
-    return map
-  }, [records])
-  const selectedDayMinutesBySubject = useMemo(() => {
-    const map = new Map<string, number>()
+  const dayMinutesBySubject = useMemo(() => {
+    const map = new Map<string, Record<string, number>>()
     for (const record of records) {
-      if (record.date === selectedDate) map.set(record.subject, record.minutes)
+      if (!map.has(record.subject)) map.set(record.subject, {})
+      map.get(record.subject)![record.date] = record.minutes
     }
     return map
-  }, [records, selectedDate])
+  }, [records])
+  const weekDates = useMemo(() => weekDatesFor(selectedDate), [selectedDate])
 
   if (children.length === 0) {
     return <p className="center-message">연결된 자녀가 없습니다.</p>
@@ -331,7 +340,6 @@ function ParentHome({ parentUid }: { parentUid: string }) {
     .map((item) => ({ item, goalMinutes: goalsByWeek[item.subject] ?? 0 }))
     .filter((g) => g.goalMinutes > 0)
   const ungoaled = items.filter((item) => (goalsByWeek[item.subject] ?? 0) <= 0)
-  const maxGoalMinutes = Math.max(1, ...goaled.map((g) => g.goalMinutes))
 
   return (
     <>
@@ -396,23 +404,20 @@ function ParentHome({ parentUid }: { parentUid: string }) {
           {goaled.length > 0 && (
             <div className="scroll-area">
               <ul className="scroll-area-inner">
-                {goaled.map(({ item, goalMinutes }) => {
-                  const weekTotal = weekTotalsBySubject.get(item.subject) ?? 0
-                  const dayMinutes = selectedDayMinutesBySubject.get(item.subject) ?? 0
-                  return (
-                    <li key={item.subject} className="card">
-                      <GoalMeterBox
-                        label={item.label}
-                        color={subjectColorFor(item.parentSubject)}
-                        minutes={weekTotal}
-                        priorMinutes={weekTotal - dayMinutes}
-                        goalMinutes={goalMinutes}
-                        widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
-                        readOnly
-                      />
-                    </li>
-                  )
-                })}
+                {goaled.map(({ item, goalMinutes }) => (
+                  <li key={item.subject} className="card">
+                    <GoalMeterBox
+                      label={item.label}
+                      color={subjectColorFor(item.parentSubject)}
+                      weekDates={weekDates}
+                      dayMinutes={dayMinutesBySubject.get(item.subject) ?? {}}
+                      selectedDate={selectedDate}
+                      todayDate={todayString()}
+                      goalMinutes={goalMinutes}
+                      readOnly
+                    />
+                  </li>
+                ))}
               </ul>
               <div className="scroll-fade" />
             </div>

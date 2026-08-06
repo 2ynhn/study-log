@@ -381,6 +381,80 @@ p {
   justify-content: center;
 }
 
+/* Celebrations (confetti toast / modal, streak badge) */
+
+@keyframes celebrationToastIn {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.celebration-toast {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 16px;
+  right: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-accent-text);
+  box-shadow: var(--shadow-sm);
+  animation: celebrationToastIn 0.25s ease;
+}
+
+.celebration-toast-emoji {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.celebration-toast-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.celebration-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-2) 0;
+}
+
+.celebration-modal-emoji {
+  font-size: 44px;
+}
+
+.celebration-modal h2 {
+  font-size: 18px;
+}
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
 /* Cheer message banner (student home) */
 
 .cheer-banner {

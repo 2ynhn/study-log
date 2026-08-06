@@ -4,6 +4,9 @@ import { buildStudyItems } from '../data/subjects'
 import { subjectColorFor } from '../data/subjectColors'
 import { setGoalMinutes } from '../firebase/goals'
 import { GoalDragBar } from '../components/GoalDragBar'
+import { CelebrationView } from '../components/Celebration'
+import { useCelebration } from '../hooks/useCelebration'
+import { detectGoalsCommitCelebration } from '../utils/celebrationRules'
 
 const WEEKLY_CAP = 1500 // 25시간 — 드래그 범위(트랙 100%) 기준값, 넘어서도 +15분 버튼으로 계속 늘릴 수 있음
 
@@ -11,8 +14,18 @@ export function GoalsPage() {
   const { user, userDoc } = useAuth()
   const items = useMemo(() => buildStudyItems(userDoc?.selectedSubjects), [userDoc])
   const goalsForWeek = userDoc?.goals?.weekly ?? {}
+  const { active: celebration, celebrate, dismiss: dismissCelebration } = useCelebration()
 
   if (!user) return null
+  const uid = user.uid
+
+  function handleGoalCommit(subject: string, minutes: number) {
+    const totalBefore = Object.values(goalsForWeek).reduce((sum, m) => sum + m, 0)
+    const totalAfter = totalBefore - (goalsForWeek[subject] ?? 0) + minutes
+    setGoalMinutes(uid, subject, minutes)
+    const result = detectGoalsCommitCelebration({ totalBefore, totalAfter })
+    if (result) celebrate(result.tier, result.message, result.emoji)
+  }
 
   if (items.length === 0) {
     return (
@@ -29,6 +42,7 @@ export function GoalsPage() {
 
   return (
     <section className="page">
+      <CelebrationView active={celebration} onDismiss={dismissCelebration} />
       <div className="page-header">
         <h1 className="wavy" style={{ textDecorationColor: '#c3b6ef' }}>
           목표 설정
@@ -46,7 +60,7 @@ export function GoalsPage() {
                 color={subjectColorFor(item.parentSubject)}
                 minutes={goalsForWeek[item.subject] ?? 0}
                 cap={WEEKLY_CAP}
-                onCommit={(minutes) => setGoalMinutes(user.uid, item.subject, minutes)}
+                onCommit={(minutes) => handleGoalCommit(item.subject, minutes)}
               />
             </li>
           ))}

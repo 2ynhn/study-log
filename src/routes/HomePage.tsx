@@ -4,18 +4,24 @@ import { useAuth } from '../auth/AuthContext'
 import { buildStudyItems, type StudyItem } from '../data/subjects'
 import { subjectColorFor } from '../data/subjectColors'
 import { subscribeChildrenOfParent } from '../firebase/links'
-import { subscribeUserDoc, type UserDoc } from '../firebase/users'
+import { markHasEverLogged, subscribeUserDoc, type UserDoc } from '../firebase/users'
 import { setStudyMinutes, subscribeRecordsForRange } from '../firebase/studyRecords'
 import { markCheerMessageRead, sendCheerMessage } from '../firebase/cheerMessages'
 import { addDaysToString, endOfWeekString, formatDateLabel, formatIsoWeekLabel, startOfWeekString, todayString } from '../utils/date'
+import { computeStreak } from '../utils/streak'
+import { detectHomeCommitCelebration } from '../utils/celebrationRules'
 import { DateNav } from '../components/DateNav'
 import { GoalMeterBox } from '../components/GoalMeterBox'
 import { InstallBanner } from '../components/InstallBanner'
 import { Modal } from '../components/Modal'
+import { CelebrationView } from '../components/Celebration'
+import { useCelebration } from '../hooks/useCelebration'
 import type { StudentParentLink, StudyRecord } from '../types'
 
 const MIN_WIDTH_PERCENT = 55
 const MAX_WIDTH_PERCENT = 100
+const STREAK_WINDOW_DAYS = 45
+const STREAK_MILESTONES = [7, 30]
 
 function useWeekRecords(studentUid: string | null, selectedDate: string) {
   const [records, setRecords] = useState<StudyRecord[]>([])
@@ -33,6 +39,27 @@ function useWeekRecords(studentUid: string | null, selectedDate: string) {
   return records
 }
 
+function useStreak(studentUid: string | null) {
+  const [datesWithActivity, setDatesWithActivity] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (!studentUid) {
+      setDatesWithActivity(new Set())
+      return
+    }
+    const start = addDaysToString(todayString(), -STREAK_WINDOW_DAYS)
+    return subscribeRecordsForRange(studentUid, start, todayString(), (records) => {
+      const dates = new Set<string>()
+      for (const record of records) {
+        if (record.minutes > 0) dates.add(record.date)
+      }
+      setDatesWithActivity(dates)
+    })
+  }, [studentUid])
+
+  return useMemo(() => computeStreak(datesWithActivity), [datesWithActivity])
+}
+
 function useDateNavState() {
   const [selectedDate, setSelectedDate] = useState(todayString())
   return {
@@ -42,16 +69,29 @@ function useDateNavState() {
   }
 }
 
-function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage }: {
+function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEverLogged }: {
   studentUid: string
   selectedSubjects: UserDoc['selectedSubjects']
   goals: UserDoc['goals']
   cheerMessage: UserDoc['cheerMessage']
+  hasEverLogged: boolean
 }) {
   const { selectedDate, goPrevDay, goNextDay } = useDateNavState()
   const items = useMemo(() => buildStudyItems(selectedSubjects), [selectedSubjects])
   const records = useWeekRecords(studentUid, selectedDate)
   const [showCheerModal, setShowCheerModal] = useState(false)
+  const { active: celebration, celebrate, dismiss: dismissCelebration } = useCelebration()
+  const streak = useStreak(studentUid)
+
+  useEffect(() => {
+    const milestone = STREAK_MILESTONES.includes(streak) ? streak : null
+    if (!milestone) return
+    const todayStr = todayString()
+    const guardKey = `streak-celebrated-${studentUid}`
+    if (localStorage.getItem(guardKey) === todayStr) return
+    localStorage.setItem(guardKey, todayStr)
+    celebrate('large', `${milestone}일 연속 공부했어요!`, '🔥')
+  }, [streak, studentUid, celebrate])
 
   function handleOpenCheer() {
     setShowCheerModal(true)
@@ -104,9 +144,12 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage }: {
     />
   )
 
+  const streakBadge = streak >= 2 && <span className="streak-badge">🔥 {streak}일 연속</span>
+
   if (items.length === 0) {
     return (
       <>
+        <CelebrationView active={celebration} onDismiss={dismissCelebration} />
         {cheerBanner}
         {dateNav}
         <p className="center-message">설정에서 공부할 과목을 먼저 선택해주세요.</p>
@@ -128,10 +171,50 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage }: {
   }
   const maxGoalMinutes = Math.max(1, ...goaled.map((g) => g.goalMinutes))
 
+  function handleGoalCommit(
+    item: StudyItem,
+    goalMinutes: number,
+    weekTotal: number,
+    otherDaysTotal: number,
+    dayMinutes: number,
+    newWeekTotal: number,
+  ) {
+    const newDayMinutes = Math.max(0, newWeekTotal - otherDaysTotal)
+    setStudyMinutes(studentUid, selectedDate, item.subject, item.parentSubject, newDayMinutes)
+
+    const totalWeekBefore = goaled.reduce((sum, g) => sum + (weekTotalsBySubject.get(g.item.subject) ?? 0), 0)
+    const totalWeekAfter = totalWeekBefore - weekTotal + newWeekTotal
+
+    const allGoaledPerfectBefore = goaled.every((g) => (weekTotalsBySubject.get(g.item.subject) ?? 0) >= g.goalMinutes)
+    const allGoaledPerfectAfter = goaled.every((g) => {
+      const wt = g.item.subject === item.subject ? newWeekTotal : (weekTotalsBySubject.get(g.item.subject) ?? 0)
+      return wt >= g.goalMinutes
+    })
+
+    const isFirstEverLog = !hasEverLogged && newDayMinutes > 0
+    if (isFirstEverLog) markHasEverLogged(studentUid)
+
+    const result = detectHomeCommitCelebration({
+      dayBefore: dayMinutes,
+      dayAfter: newDayMinutes,
+      weekBefore: weekTotal,
+      weekAfter: newWeekTotal,
+      goalMinutes,
+      totalWeekBefore,
+      totalWeekAfter,
+      allGoaledPerfectBefore,
+      allGoaledPerfectAfter,
+      isFirstEverLog,
+    })
+    if (result) celebrate(result.tier, result.message, result.emoji)
+  }
+
   return (
     <>
+      <CelebrationView active={celebration} onDismiss={dismissCelebration} />
       {cheerBanner}
       {dateNav}
+      {streakBadge}
       {goaled.length > 0 && (
         <div className="scroll-area">
           <ul className="scroll-area-inner">
@@ -148,10 +231,9 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage }: {
                     priorMinutes={otherDaysTotal}
                     goalMinutes={goalMinutes}
                     widthPercent={MIN_WIDTH_PERCENT + (goalMinutes / maxGoalMinutes) * (MAX_WIDTH_PERCENT - MIN_WIDTH_PERCENT)}
-                    onCommit={(newWeekTotal) => {
-                      const newDayMinutes = Math.max(0, newWeekTotal - otherDaysTotal)
-                      setStudyMinutes(studentUid, selectedDate, item.subject, item.parentSubject, newDayMinutes)
-                    }}
+                    onCommit={(newWeekTotal) =>
+                      handleGoalCommit(item, goalMinutes, weekTotal, otherDaysTotal, dayMinutes, newWeekTotal)
+                    }
                   />
                 </li>
               )
@@ -365,6 +447,7 @@ export function HomePage() {
           selectedSubjects={userDoc.selectedSubjects}
           goals={userDoc.goals}
           cheerMessage={userDoc.cheerMessage}
+          hasEverLogged={userDoc.hasEverLogged ?? false}
         />
       ) : (
         <ParentHome parentUid={user.uid} />

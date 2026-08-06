@@ -10,6 +10,7 @@ export interface UserDoc {
   selectedSubjects?: SelectedSubjects
   goals?: UserGoals
   cheerMessage?: CheerMessage
+  hasEverLogged?: boolean
 }
 
 export function subscribeUserDoc(uid: string, onChange: (user: UserDoc | null) => void) {
@@ -36,6 +37,10 @@ export async function setSelectedSubjects(uid: string, selectedSubjects: Selecte
 
 export async function setSchoolLevel(uid: string, schoolLevel: SchoolLevel) {
   await setDoc(doc(db, 'users', uid), { schoolLevel }, { merge: true })
+}
+
+export async function markHasEverLogged(uid: string) {
+  await setDoc(doc(db, 'users', uid), { hasEverLogged: true }, { merge: true })
 }
 
 export async function completeOnboarding(uid: string) {

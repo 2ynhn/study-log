@@ -56,7 +56,8 @@ export async function redeemInviteCode(parentUid: string, codeInput: string): Pr
     if (data.expiresAt < Date.now()) throw new RedeemInviteCodeError('expired')
 
     tx.update(codeDocRef, { used: true, usedByParentUid: parentUid })
-    tx.set(linkRef, { studentUid, parentUid, createdAt: serverTimestamp() })
+    // merge:true so this never clobbers a nickname the parent already set on the link
+    tx.set(linkRef, { studentUid, parentUid, createdAt: serverTimestamp() }, { merge: true })
   })
 
   return { studentUid }

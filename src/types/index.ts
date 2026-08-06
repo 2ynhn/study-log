@@ -24,6 +24,7 @@ export interface StudentParentLink {
   studentUid: string
   parentUid: string
   createdAt: number
+  nickname?: string
 }
 
 export interface StudyRecord {

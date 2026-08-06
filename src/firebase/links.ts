@@ -1,4 +1,4 @@
-import { collection, deleteDoc, doc, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, deleteDoc, doc, onSnapshot, query, setDoc, where } from 'firebase/firestore'
 import { db } from './config'
 import type { StudentParentLink } from '../types'
 
@@ -14,4 +14,8 @@ export function subscribeChildrenOfParent(parentUid: string, cb: (links: Student
 
 export async function removeLink(studentUid: string, parentUid: string) {
   await deleteDoc(doc(db, 'links', `${studentUid}_${parentUid}`))
+}
+
+export async function setChildNickname(studentUid: string, parentUid: string, nickname: string) {
+  await setDoc(doc(db, 'links', `${studentUid}_${parentUid}`), { nickname }, { merge: true })
 }

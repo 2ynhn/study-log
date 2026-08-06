@@ -165,7 +165,7 @@ export function StatsPage() {
                     aria-selected={child.studentUid === activeChildUid}
                     onClick={() => setActiveChildUid(child.studentUid)}
                   >
-                    {child.studentUid}
+                    {child.nickname || child.studentUid}
                   </button>
                 ))}
               </div>

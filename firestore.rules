@@ -67,6 +67,9 @@ service cloud.firestore {
       allow create: if isSignedIn() &&
         request.resource.data.parentUid == request.auth.uid &&
         linkId == request.resource.data.studentUid + '_' + request.resource.data.parentUid;
+      // 학부모가 본인이 보는 화면에서만 쓰이는 자녀 닉네임을 붙일 수 있게 함 (다른 필드는 수정 불가)
+      allow update: if isSignedIn() && resource.data.parentUid == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname']);
       // 학생과 학부모 양쪽 모두 연결을 해제(또는 계정 삭제 시 정리)할 수 있어야 함
       allow delete: if isSignedIn() &&
         (resource.data.studentUid == request.auth.uid || resource.data.parentUid == request.auth.uid);

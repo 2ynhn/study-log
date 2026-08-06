@@ -677,6 +677,27 @@ p {
   gap: var(--space-4);
 }
 
+.child-nickname-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.child-nickname-row input {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px dashed var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-3);
+  font-size: 16px;
+}
+
+.child-nickname-row input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
 .role-option {
   display: flex;
   flex-direction: column;

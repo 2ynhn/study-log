@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { completeOnboarding } from '../firebase/users'
 import { RedeemInviteCodeError, redeemInviteCode } from '../firebase/inviteCodes'
-import { subscribeChildrenOfParent } from '../firebase/links'
+import { subscribeChildrenOfParent, setChildNickname } from '../firebase/links'
 import type { StudentParentLink } from '../types'
 
 function redeemErrorMessage(reason: string): string {
@@ -15,6 +15,44 @@ function redeemErrorMessage(reason: string): string {
     default:
       return '유효하지 않은 초대코드입니다.'
   }
+}
+
+function ChildRow({ link, parentUid }: { link: StudentParentLink; parentUid: string }) {
+  const [nickname, setNickname] = useState(link.nickname ?? '')
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    setNickname(link.nickname ?? '')
+  }, [link.nickname])
+
+  async function handleSave() {
+    setSaving(true)
+    await setChildNickname(link.studentUid, parentUid, nickname.trim())
+    setSaving(false)
+  }
+
+  return (
+    <li className="card">
+      <p className="muted">연결된 아이디: {link.studentUid}</p>
+      <div className="child-nickname-row">
+        <input
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          placeholder="자녀 닉네임을 입력하세요"
+          maxLength={20}
+          aria-label="자녀 닉네임"
+        />
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          disabled={saving || nickname.trim() === (link.nickname ?? '')}
+          onClick={handleSave}
+        >
+          저장
+        </button>
+      </div>
+    </li>
+  )
 }
 
 export function ParentConnectPage() {
@@ -59,11 +97,9 @@ export function ParentConnectPage() {
       </div>
 
       {children.length > 0 && (
-        <ul className="card">
+        <ul className="card-list">
           {children.map((link) => (
-            <li key={link.studentUid} className="card-row">
-              연결됨: {link.studentUid}
-            </li>
+            <ChildRow key={link.studentUid} link={link} parentUid={user!.uid} />
           ))}
         </ul>
       )}

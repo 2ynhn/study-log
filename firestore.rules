@@ -56,7 +56,9 @@ service cloud.firestore {
       allow create: if isSignedIn() &&
         request.resource.data.uid == request.auth.uid &&
         request.resource.data.email == request.auth.token.email;
-      allow update, delete: if false;
+      // 계정 삭제 시 본인 명의의 아이디 매핑을 정리할 수 있도록 삭제만 허용 (수정은 여전히 불가)
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
     }
 
     match /links/{linkId} {
@@ -65,7 +67,9 @@ service cloud.firestore {
       allow create: if isSignedIn() &&
         request.resource.data.parentUid == request.auth.uid &&
         linkId == request.resource.data.studentUid + '_' + request.resource.data.parentUid;
-      allow delete: if isSignedIn() && resource.data.studentUid == request.auth.uid;
+      // 학생과 학부모 양쪽 모두 연결을 해제(또는 계정 삭제 시 정리)할 수 있어야 함
+      allow delete: if isSignedIn() &&
+        (resource.data.studentUid == request.auth.uid || resource.data.parentUid == request.auth.uid);
     }
   }
 }

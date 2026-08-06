@@ -51,7 +51,7 @@ export function LoginPage() {
         }
         const cred = await createUserWithEmailAndPassword(auth, email.trim(), password)
         await reserveUsername(loginId, cred.user.uid, email.trim())
-        await createUserDoc(cred.user.uid)
+        await createUserDoc(cred.user.uid, loginId.trim())
       } else if (mode === 'login') {
         const foundEmail = await lookupEmailByUsername(loginId)
         if (!foundEmail) {

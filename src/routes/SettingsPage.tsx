@@ -43,6 +43,10 @@ export function SettingsPage() {
       <button type="button" className="btn btn-secondary btn-block" onClick={() => signOut(auth)}>
         로그아웃
       </button>
+
+      <Link to="/settings/delete-account" className="btn btn-danger btn-block">
+        계정 삭제
+      </Link>
     </section>
   )
 }

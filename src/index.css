@@ -556,6 +556,13 @@ p {
   border-color: var(--color-danger-soft);
 }
 
+.btn-danger-solid {
+  background: var(--color-danger);
+  border-style: solid;
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
 .btn-block {
   width: 100%;
 }

@@ -14,6 +14,7 @@ import { GoalsPage } from './routes/GoalsPage'
 import { SettingsPage } from './routes/SettingsPage'
 import { SubjectEditPage } from './routes/SubjectEditPage'
 import { ParentLinksPage } from './routes/ParentLinksPage'
+import { DeleteAccountPage } from './routes/DeleteAccountPage'
 import { NotFoundPage } from './routes/NotFoundPage'
 
 const ONBOARDING_PATHS = ['/onboarding/role', '/onboarding/subjects', '/onboarding/connect']
@@ -78,6 +79,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/subjects" element={<SubjectEditPage />} />
         <Route path="/settings/parents" element={<ParentLinksPage />} />
+        <Route path="/settings/delete-account" element={<DeleteAccountPage />} />
         <Route path="/family" element={<ParentConnectPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

@@ -4,6 +4,7 @@ import type { CheerMessage, SchoolLevel, SelectedSubjects, UserGoals, UserRole }
 
 export interface UserDoc {
   uid: string
+  loginId?: string
   role: UserRole | null
   onboardingComplete: boolean
   schoolLevel?: SchoolLevel
@@ -19,11 +20,11 @@ export function subscribeUserDoc(uid: string, onChange: (user: UserDoc | null) =
   })
 }
 
-export async function createUserDoc(uid: string) {
+export async function createUserDoc(uid: string, loginId: string) {
   const ref = doc(db, 'users', uid)
   const existing = await getDoc(ref)
   if (!existing.exists()) {
-    await setDoc(ref, { uid, role: null, onboardingComplete: false })
+    await setDoc(ref, { uid, loginId, role: null, onboardingComplete: false })
   }
 }
 

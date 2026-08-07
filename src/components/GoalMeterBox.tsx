@@ -1,6 +1,7 @@
 import { useDragFillValue } from '../hooks/useDragFillValue'
 import type { SubjectColor } from '../data/subjectColors'
 import { formatMinutes } from '../utils/time'
+import { todayString } from '../utils/date'
 
 interface GoalMeterBoxProps {
   label: string
@@ -45,7 +46,12 @@ export function GoalMeterBox({
   const selectedLive = Math.max(0, display - beforeTotal)
   const weekTotal = beforeTotal + selectedLive + afterTotal
   const achieved = goalMinutes > 0 && weekTotal >= goalMinutes
-  const selectedEmpty = selectedLive <= 0
+  const rawEmpty = selectedLive <= 0
+  const isToday = selectedDate === todayString()
+  // 0분인 선택 날짜는 점선 마커로 위치를 표시하되, 오늘은 예외 — 아직 기록이 없는 게
+  // 당연하므로 마커 자체를 그리지 않음
+  const hideSelectedFill = rawEmpty && isToday
+  const selectedEmpty = rawEmpty && !isToday
 
   const beforePct = pct(beforeTotal, goalMinutes)
   const selectedEndPct = pct(beforeTotal + selectedLive, goalMinutes)
@@ -107,14 +113,16 @@ export function GoalMeterBox({
           {...(interactive ? handlers : {})}
         >
           <div className="meter-fill-before" style={{ width: `${beforePct}%`, background: color.muted }} />
-          <div
-            className={selectedEmpty ? 'meter-fill-selected meter-fill-selected--empty' : 'meter-fill-selected'}
-            style={{
-              left: `${beforePct}%`,
-              width: `${selectedWidthPct}%`,
-              ...(selectedEmpty ? { color: color.vivid } : { backgroundColor: color.vivid }),
-            }}
-          />
+          {!hideSelectedFill && (
+            <div
+              className={selectedEmpty ? 'meter-fill-selected meter-fill-selected--empty' : 'meter-fill-selected'}
+              style={{
+                left: `${beforePct}%`,
+                width: `${selectedWidthPct}%`,
+                ...(selectedEmpty ? { color: color.vivid } : { backgroundColor: color.vivid }),
+              }}
+            />
+          )}
           <div className="meter-fill-after" style={{ left: `${selectedEndPct}%`, width: `${afterWidthPct}%`, background: color.muted }} />
         </div>
       </div>

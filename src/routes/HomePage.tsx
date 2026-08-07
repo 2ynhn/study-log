@@ -29,10 +29,10 @@ import type { StudentParentLink, StudyRecord } from '../types'
 const STREAK_WINDOW_DAYS = 45
 const STREAK_MILESTONES = [7, 30]
 
-function useWeekRecords(studentUid: string | null, selectedDate: string) {
+function useWeekRecords(studentUid: string | null, selectedDate: string, weekStartsMonday: boolean) {
   const [records, setRecords] = useState<StudyRecord[]>([])
-  const weekStart = startOfWeekString(selectedDate)
-  const weekEnd = endOfWeekString(selectedDate)
+  const weekStart = startOfWeekString(selectedDate, weekStartsMonday)
+  const weekEnd = endOfWeekString(selectedDate, weekStartsMonday)
 
   useEffect(() => {
     if (!studentUid) {
@@ -75,16 +75,17 @@ function useDateNavState() {
   }
 }
 
-function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEverLogged }: {
+function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEverLogged, weekStartsMonday }: {
   studentUid: string
   selectedSubjects: UserDoc['selectedSubjects']
   goals: UserDoc['goals']
   cheerMessage: UserDoc['cheerMessage']
   hasEverLogged: boolean
+  weekStartsMonday: boolean
 }) {
   const { selectedDate, goPrevDay, goNextDay } = useDateNavState()
   const items = useMemo(() => buildStudyItems(selectedSubjects), [selectedSubjects])
-  const records = useWeekRecords(studentUid, selectedDate)
+  const records = useWeekRecords(studentUid, selectedDate, weekStartsMonday)
   const [showCheerModal, setShowCheerModal] = useState(false)
   const { active: celebration, celebrate, dismiss: dismissCelebration } = useCelebration()
   const streak = useStreak(studentUid)
@@ -148,7 +149,7 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEve
     return map
   }, [records])
 
-  const weekDates = useMemo(() => weekDatesFor(selectedDate), [selectedDate])
+  const weekDates = useMemo(() => weekDatesFor(selectedDate, weekStartsMonday), [selectedDate, weekStartsMonday])
 
   const dateNav = (
     <DateNav
@@ -309,8 +310,9 @@ function ParentHome({ parentUid }: { parentUid: string }) {
     return subscribeUserDoc(activeChildUid, setChildDoc)
   }, [activeChildUid])
 
+  const weekStartsMonday = childDoc?.weekStartsMonday ?? true
   const items = useMemo(() => buildStudyItems(childDoc?.selectedSubjects), [childDoc])
-  const records = useWeekRecords(activeChildUid, selectedDate)
+  const records = useWeekRecords(activeChildUid, selectedDate, weekStartsMonday)
   const dayMinutesBySubject = useMemo(() => {
     const map = new Map<string, Record<string, number>>()
     for (const record of records) {
@@ -319,7 +321,7 @@ function ParentHome({ parentUid }: { parentUid: string }) {
     }
     return map
   }, [records])
-  const weekDates = useMemo(() => weekDatesFor(selectedDate), [selectedDate])
+  const weekDates = useMemo(() => weekDatesFor(selectedDate, weekStartsMonday), [selectedDate, weekStartsMonday])
 
   if (children.length === 0) {
     return <p className="center-message">연결된 자녀가 없습니다.</p>
@@ -451,6 +453,7 @@ export function HomePage() {
           goals={userDoc.goals}
           cheerMessage={userDoc.cheerMessage}
           hasEverLogged={userDoc.hasEverLogged ?? false}
+          weekStartsMonday={userDoc.weekStartsMonday ?? true}
         />
       ) : (
         <ParentHome parentUid={user.uid} />

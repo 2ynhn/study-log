@@ -14,6 +14,7 @@ export function GoalsPage() {
   const { user, userDoc } = useAuth()
   const items = useMemo(() => buildStudyItems(userDoc?.selectedSubjects), [userDoc])
   const goalsForWeek = userDoc?.goals?.weekly ?? {}
+  const weekRangeText = (userDoc?.weekStartsMonday ?? true) ? '월요일 시작 ~ 일요일까지' : '일요일 시작 ~ 토요일까지'
   const { active: celebration, celebrate, dismiss: dismissCelebration } = useCelebration()
 
   if (!user) return null
@@ -47,7 +48,7 @@ export function GoalsPage() {
         <h1 className="wavy" style={{ textDecorationColor: '#c3b6ef' }}>
           목표 설정
         </h1>
-        <p className="muted">과목별로 일주일 동안 공부할 총 시간을 설정 해 주세요. (월요일 시작 ~ 일요일까지)</p>
+        <p className="muted">과목별로 일주일 동안 공부할 총 시간을 설정 해 주세요. ({weekRangeText})</p>
         <p className="muted">과목별 색으로 목표를 구분했어요. 클릭하면 15분씩 조절돼요.</p>
       </div>
 

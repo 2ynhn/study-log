@@ -24,22 +24,22 @@ export function addWeeksToString(dateString: string, delta: number): string {
   return addDaysToString(dateString, delta * 7)
 }
 
-export function startOfWeekString(dateString: string = todayString()): string {
+export function startOfWeekString(dateString: string = todayString(), weekStartsMonday: boolean = true): string {
   const date = parseDateString(dateString)
   const day = date.getDay()
-  const diffToMonday = day === 0 ? -6 : 1 - day
-  date.setDate(date.getDate() + diffToMonday)
+  const diffToStart = weekStartsMonday ? (day === 0 ? -6 : 1 - day) : -day
+  date.setDate(date.getDate() + diffToStart)
   return toDateString(date)
 }
 
-export function endOfWeekString(dateString: string = todayString()): string {
-  return addDaysToString(startOfWeekString(dateString), 6)
+export function endOfWeekString(dateString: string = todayString(), weekStartsMonday: boolean = true): string {
+  return addDaysToString(startOfWeekString(dateString, weekStartsMonday), 6)
 }
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 
-export function weekDatesFor(dateString: string): string[] {
-  const start = startOfWeekString(dateString)
+export function weekDatesFor(dateString: string, weekStartsMonday: boolean = true): string[] {
+  const start = startOfWeekString(dateString, weekStartsMonday)
   return Array.from({ length: 7 }, (_, i) => addDaysToString(start, i))
 }
 

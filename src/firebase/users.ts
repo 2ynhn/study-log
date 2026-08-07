@@ -12,6 +12,7 @@ export interface UserDoc {
   goals?: UserGoals
   cheerMessage?: CheerMessage
   hasEverLogged?: boolean
+  weekStartsMonday?: boolean
 }
 
 export function subscribeUserDoc(uid: string, onChange: (user: UserDoc | null) => void) {
@@ -38,6 +39,10 @@ export async function setSelectedSubjects(uid: string, selectedSubjects: Selecte
 
 export async function setSchoolLevel(uid: string, schoolLevel: SchoolLevel) {
   await setDoc(doc(db, 'users', uid), { schoolLevel }, { merge: true })
+}
+
+export async function setWeekStartsMonday(uid: string, weekStartsMonday: boolean) {
+  await setDoc(doc(db, 'users', uid), { weekStartsMonday }, { merge: true })
 }
 
 export async function markHasEverLogged(uid: string) {

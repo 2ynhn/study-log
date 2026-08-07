@@ -760,16 +760,66 @@ p {
   justify-content: space-between;
   width: 100%;
   gap: var(--space-3);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
   text-decoration: none;
   color: var(--color-text);
   font-size: 16px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .settings-row-chevron {
   color: var(--color-accent-text);
   font-size: 18px;
   font-weight: 700;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--space-3);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--color-track);
+  border: 1.5px solid var(--color-border);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.toggle-track.checked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease;
+}
+
+.toggle-track.checked .toggle-thumb {
+  transform: translateX(18px);
 }
 
 /* Subject color dot */

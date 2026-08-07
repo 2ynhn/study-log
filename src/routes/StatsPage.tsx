@@ -102,9 +102,10 @@ export function StatsPage() {
   const [childDoc, setChildDoc] = useState<UserDoc | null>(null)
 
   const isParent = userDoc?.role === 'parent'
-  const weekStart = startOfWeekString(anchorDate)
-  const weekEnd = endOfWeekString(anchorDate)
-  const isCurrentWeek = weekStart === startOfWeekString(todayString())
+  const weekStartsMonday = (isParent ? childDoc?.weekStartsMonday : userDoc?.weekStartsMonday) ?? true
+  const weekStart = startOfWeekString(anchorDate, weekStartsMonday)
+  const weekEnd = endOfWeekString(anchorDate, weekStartsMonday)
+  const isCurrentWeek = weekStart === startOfWeekString(todayString(), weekStartsMonday)
 
   useEffect(() => {
     if (!isParent || !user) return

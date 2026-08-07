@@ -37,7 +37,7 @@ export function GoalMeterBox({
 
   // 드래그 값 자체는 "선택한 날짜까지의 누적 경계"(beforeTotal + 선택한 날짜 분)로 다루고,
   // 커밋 시점에 beforeTotal을 빼서 실제 그 날짜의 분으로 환산함.
-  const { trackRef, display, adjust, handlers } = useDragFillValue({
+  const { trackRef, display, handlers } = useDragFillValue({
     value: beforeTotal + selectedMinutes,
     max: goalMinutes,
     onCommit: (boundary) => onCommit?.(Math.max(0, boundary - beforeTotal)),
@@ -68,27 +68,16 @@ export function GoalMeterBox({
           <span className="subject-dot" style={{ background: color.vivid }} />
           {label}
         </span>
-        {!readOnly && (
-          <div className="chip-row">
-            <button type="button" className="chip" onClick={() => adjust(-15)}>
-              -15분
-            </button>
-            <button type="button" className="chip-solid" style={{ borderColor: color.vivid }} onClick={() => adjust(15)}>
-              +15분
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="meter-summary">
-        <span>
-          {formatMinutes(weekTotal)} / {formatMinutes(goalMinutes)}
-        </span>
-        {achieved && (
-          <span className="meter-badge-inline" aria-hidden="true">
-            ✓
+        <span className="meter-summary">
+          <span>
+            {formatMinutes(weekTotal)} / {formatMinutes(goalMinutes)}
           </span>
-        )}
+          {achieved && (
+            <span className="meter-badge-inline" aria-hidden="true">
+              ✓
+            </span>
+          )}
+        </span>
       </div>
 
       <div className="meter-track-wrap">

@@ -1,7 +1,6 @@
 import { useDragFillValue } from '../hooks/useDragFillValue'
 import type { SubjectColor } from '../data/subjectColors'
 import { formatMinutes } from '../utils/time'
-import { weekdayInitial } from '../utils/date'
 
 interface GoalMeterBoxProps {
   label: string
@@ -9,18 +8,14 @@ interface GoalMeterBoxProps {
   weekDates: string[] // 월~일 7개, 시간순
   dayMinutes: Record<string, number>
   selectedDate: string
-  todayDate: string
   goalMinutes: number
   readOnly?: boolean
   onCommit?: (minutes: number) => void
 }
 
-// 하루치 칸의 채움 비율은 주간 목표 전체가 아니라 "하루 몫(목표/7)" 기준으로 계산해,
-// 대부분의 날이 거의 안 채워진 것처럼 보이는 문제를 피함. 실제 드래그 가능 범위(0~목표)는 그대로 유지.
-function dayFillRatio(minutes: number, goalMinutes: number): number {
-  const fairShare = goalMinutes / 7
-  if (fairShare <= 0) return 0
-  return Math.min(minutes / fairShare, 1)
+function pct(value: number, max: number): number {
+  if (max <= 0) return 0
+  return Math.min(Math.max(value, 0) / max, 1) * 100
 }
 
 export function GoalMeterBox({
@@ -29,20 +24,36 @@ export function GoalMeterBox({
   weekDates,
   dayMinutes,
   selectedDate,
-  todayDate,
   goalMinutes,
   readOnly = false,
   onCommit,
 }: GoalMeterBoxProps) {
+  // 선택한 날짜보다 이전/이후인 날짜들의 누적 시간. 드래그 중에도 고정값으로 취급해,
+  // 선택한 날짜의 막대만 늘었다 줄었다 하고 나머지는 그 옆으로 밀려나 보이게 함.
+  const beforeTotal = weekDates.filter((d) => d < selectedDate).reduce((sum, d) => sum + (dayMinutes[d] ?? 0), 0)
+  const afterTotal = weekDates.filter((d) => d > selectedDate).reduce((sum, d) => sum + (dayMinutes[d] ?? 0), 0)
   const selectedMinutes = dayMinutes[selectedDate] ?? 0
+
+  // 드래그 값 자체는 "선택한 날짜까지의 누적 경계"(beforeTotal + 선택한 날짜 분)로 다루고,
+  // 커밋 시점에 beforeTotal을 빼서 실제 그 날짜의 분으로 환산함.
   const { trackRef, display, adjust, handlers } = useDragFillValue({
-    value: selectedMinutes,
+    value: beforeTotal + selectedMinutes,
     max: goalMinutes,
-    onCommit: onCommit ?? (() => {}),
+    onCommit: (boundary) => onCommit?.(Math.max(0, boundary - beforeTotal)),
   })
 
-  const weekTotal = weekDates.reduce((sum, date) => sum + (date === selectedDate ? display : (dayMinutes[date] ?? 0)), 0)
+  const selectedLive = Math.max(0, display - beforeTotal)
+  const weekTotal = beforeTotal + selectedLive + afterTotal
   const achieved = goalMinutes > 0 && weekTotal >= goalMinutes
+  const selectedEmpty = selectedLive <= 0
+
+  const beforePct = pct(beforeTotal, goalMinutes)
+  const selectedEndPct = pct(beforeTotal + selectedLive, goalMinutes)
+  const afterEndPct = pct(beforeTotal + selectedLive + afterTotal, goalMinutes)
+  const selectedWidthPct = Math.max(selectedEndPct - beforePct, 0)
+  const afterWidthPct = Math.max(afterEndPct - selectedEndPct, 0)
+
+  const interactive = !readOnly
 
   return (
     <div className="meter-content">
@@ -74,51 +85,38 @@ export function GoalMeterBox({
         )}
       </div>
 
-      <div className="meter-week-row">
-        {weekDates.map((date) => {
-          const isSelected = date === selectedDate
-          const isFuture = date > todayDate
-          const minutes = isSelected ? display : (dayMinutes[date] ?? 0)
-          const ratio = dayFillRatio(minutes, goalMinutes)
-          const interactive = isSelected && !readOnly
-
-          const cellClassName = [
-            'meter-day-cell',
-            isFuture && 'meter-day-cell--future',
-            isSelected && 'meter-day-cell--selected',
-          ]
-            .filter(Boolean)
-            .join(' ')
-
-          return (
-            <div key={date} className="meter-day-cell-outer">
-              {isSelected && (
-                <span className="meter-day-value-bubble" style={{ color: color.vivid }}>
-                  {formatMinutes(display)}
-                </span>
-              )}
-              <div
-                ref={interactive ? trackRef : undefined}
-                className={cellClassName}
-                role={interactive ? 'slider' : undefined}
-                tabIndex={interactive ? 0 : undefined}
-                aria-label={interactive ? label : undefined}
-                aria-valuemin={interactive ? 0 : undefined}
-                aria-valuemax={interactive ? goalMinutes : undefined}
-                aria-valuenow={interactive ? display : undefined}
-                aria-valuetext={
-                  interactive ? `${weekdayInitial(date)}요일 ${formatMinutes(display)} / 목표 ${formatMinutes(goalMinutes)}` : undefined
-                }
-                {...(interactive ? handlers : {})}
-              >
-                {!isFuture && (
-                  <div className="meter-fill-h" style={{ width: `${ratio * 100}%`, background: isSelected ? color.vivid : color.muted }} />
-                )}
-              </div>
-              <span className="meter-day-label">{weekdayInitial(date)}</span>
-            </div>
-          )
-        })}
+      <div className="meter-track-wrap">
+        {interactive && (
+          <span
+            className="meter-day-value-bubble"
+            style={{ left: `${(beforePct + selectedEndPct) / 2}%`, color: color.vivid }}
+          >
+            {formatMinutes(selectedLive)}
+          </span>
+        )}
+        <div
+          ref={interactive ? trackRef : undefined}
+          className="meter-track"
+          role={interactive ? 'slider' : undefined}
+          tabIndex={interactive ? 0 : undefined}
+          aria-label={interactive ? label : undefined}
+          aria-valuemin={interactive ? 0 : undefined}
+          aria-valuemax={interactive ? goalMinutes : undefined}
+          aria-valuenow={interactive ? selectedLive : undefined}
+          aria-valuetext={interactive ? `선택한 날짜 ${formatMinutes(selectedLive)} / 목표 ${formatMinutes(goalMinutes)}` : undefined}
+          {...(interactive ? handlers : {})}
+        >
+          <div className="meter-fill-before" style={{ width: `${beforePct}%`, background: color.muted }} />
+          <div
+            className={selectedEmpty ? 'meter-fill-selected meter-fill-selected--empty' : 'meter-fill-selected'}
+            style={{
+              left: `${beforePct}%`,
+              width: `${selectedWidthPct}%`,
+              ...(selectedEmpty ? { color: color.vivid } : { backgroundColor: color.vivid }),
+            }}
+          />
+          <div className="meter-fill-after" style={{ left: `${selectedEndPct}%`, width: `${afterWidthPct}%`, background: color.muted }} />
+        </div>
       </div>
     </div>
   )

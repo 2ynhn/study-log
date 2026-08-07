@@ -43,10 +43,6 @@ export function weekDatesFor(dateString: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDaysToString(start, i))
 }
 
-export function weekdayInitial(dateString: string): string {
-  return WEEKDAY_LABELS[parseDateString(dateString).getDay()]
-}
-
 export function formatDateLabel(dateString: string): string {
   const date = parseDateString(dateString)
   return `${date.getMonth() + 1}월 ${date.getDate()}일 (${WEEKDAY_LABELS[date.getDay()]})`

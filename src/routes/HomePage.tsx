@@ -243,7 +243,6 @@ function StudentHome({ studentUid, selectedSubjects, goals, cheerMessage, hasEve
                     weekDates={weekDates}
                     dayMinutes={dayMinutesBySubject.get(item.subject) ?? {}}
                     selectedDate={selectedDate}
-                    todayDate={todayString()}
                     goalMinutes={goalMinutes}
                     onCommit={(newDayMinutes) => handleGoalCommit(item, goalMinutes, weekTotal, dayMinutes, newDayMinutes)}
                   />
@@ -412,7 +411,6 @@ function ParentHome({ parentUid }: { parentUid: string }) {
                       weekDates={weekDates}
                       dayMinutes={dayMinutesBySubject.get(item.subject) ?? {}}
                       selectedDate={selectedDate}
-                      todayDate={todayString()}
                       goalMinutes={goalMinutes}
                       readOnly
                     />
